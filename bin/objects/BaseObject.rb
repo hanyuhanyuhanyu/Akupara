@@ -22,15 +22,3 @@ class BaseObject
   end
 end
 
-Dir.glob("*").select{|fl| fl =~ /^[A-Z].*\.rb$/}.map do |fl|
-  fl.gsub(/\..+$/,"")
-end.each do |kls|
-  next if kls == "BaseObject"
-  eval "class #{kls} < BaseObject\n end"
-end
-
-Dir.glob("*").reject do |file|
-  %w|BaseObject.rb sandbox.rb|.include?(file) || File::ftype(file) == "directory"
-end.each do |path|
-  require_relative path
-end

@@ -40,7 +40,7 @@ class Places
   end
 end
 
-PlaceDef = "def/Place.json"
+PlaceDef = "#{ __FILE__.split("/")[0..-2].join("/")}/def/Place.json"
 JSON.parse(File.open(PlaceDef,"r").read).each_pair do |key,value|
   eval <<-EOS
     #{key.capitalize} = Place.new('#{key}',#{value})
