@@ -28,7 +28,7 @@ class Token
   end
 end
 
-TokenDef = "def/Token.json"
+TokenDef = "#{ __FILE__.split("/")[0..-2].join("/")}/def/Token.json"
 JSON.parse(File.open(TokenDef,"r").read).each_pair do |key , value|
   eval <<-EOS
     class #{key.capitalize} < Token
