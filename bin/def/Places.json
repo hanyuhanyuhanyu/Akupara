@@ -1,0 +1,10 @@
+{
+  "atlanta":{
+    "name":"アトランタ"
+    ,"adjs":["sankt_peterburg"]
+  }
+  ,"sankt_peterburg":{
+    "name":"サンクト・ペテルブルク"
+    ,"adjs":["atlanta"]
+  }
+}
