@@ -1,7 +1,7 @@
 require 'json'
 
 class Place
-  attr_reader :to_sym , :name , :adjs
+  attr_reader :name , :adjs
 
   def initialize(key , value)
     @to_sym = key.to_sym
