@@ -17,7 +17,8 @@ class BaseObject
     @hold[token.to_sym] = token unless @hold[token.to_sym]
   end
   def [](token)
-    @hold&.[](token.to_sym) || @hold&.values.map(&:subtype).flatten.reject{|var| var.nil?}[0][token.to_sym]
+    @hold&.[token.to_sym] || @hold&.values.map(&:subtype).flatten.reject{|var| var.nil?}[0][token.to_sym]
   end
 end
+
 
