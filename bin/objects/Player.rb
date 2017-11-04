@@ -1,6 +1,5 @@
 class Player
   @pl_num = 0
-  attr_reader :to_sym
   def initialize(sym = ("pl_" + Player.add_pl_num.to_s).to_sym)
     @to_sym = sym
   end

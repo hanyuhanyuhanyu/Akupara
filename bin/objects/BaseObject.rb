@@ -1,5 +1,4 @@
 class BaseObject
-  attr_reader :where
   @count = 0
   def to_sym
     @to_sym || ("undefined" + BaseObject.addcount.to_s).to_sym

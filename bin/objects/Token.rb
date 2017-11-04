@@ -1,7 +1,7 @@
 require 'json'
 
 class Token
-  attr_reader :to_sym , :name , :subtype
+  attr_reader :name , :subtype
   def initialize(key , value = {})
     @to_sym = key.to_sym
     @name = value["name"]
