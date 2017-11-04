@@ -1,7 +1,7 @@
 class BaseObject
   @count = 0
   def to_sym
-    @to_sym || ("undefined" + BaseObject.addcount.to_s).to_sym
+    @to_sym || @to_sym = ("undefined" + BaseObject.addcount.to_s).to_sym
   end
   def self.addcount
     @count += 1
