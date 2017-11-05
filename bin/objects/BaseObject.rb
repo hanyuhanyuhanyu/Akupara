@@ -14,10 +14,15 @@ class BaseObject
   def hold(token)
     return unless token.is_a?(Token)
     @hold ||= {}
-    @hold[token.to_sym] = token unless @hold[token.to_sym]
+    if @hold[token.to_sym]
+      @hold[token.to_sym].add
+    else
+      @hold[token.to_sym] = token
+      hold(token)
+    end
   end
   def [](token)
-    @hold&.[token.to_sym] || @hold&.values.map(&:subtype).flatten.reject{|var| var.nil?}[0][token.to_sym]
+    @hold&[token.to_sym] || @hold&.values.map(&:subtype).flatten.reject{|var| var.nil?}[0][token.to_sym]
   end
 end
 
