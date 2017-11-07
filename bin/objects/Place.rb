@@ -10,7 +10,7 @@ class Place
     @holding = {}
     @direction = {}
     %w|right left up down down_right up_right down_left up_left|.each do |dir|
-      @direction[dir.to_sym] = value[dir] if value[dir.to_sym]
+      @direction[dir.to_sym] = value[dir].to_sym if value[dir]
     end
   end
   def parachute(place)
