@@ -39,9 +39,7 @@ TokenJson.each_value do |value|
   while value["amount"].keys.any?{|sub| TokenJson[sub]["subtype"]}
     value["amount"].keys.each do |sub|
       next unless TokenJson[sub]["subtype"]
-      [TokenJson[sub]["subtype"]].flatten.each do |grandsub|
-        value["amount"][grandsub] ||= value["amount"][sub]
-      end
+      [TokenJson[sub]["subtype"]].flatten.each{|grandsub| value["amount"][grandsub] ||= value["amount"][sub]}
       value["amount"].delete sub
     end
   end
@@ -49,9 +47,7 @@ end
 TokenJson.each_value do |value|
   next unless value["subtype"]
   value["subtype"] = [value["subtype"]].flatten
-  while value["subtype"].any?{|sub| TokenJson[sub]["subtype"]}
-    value["subtype"] = value["subtype"].map{|sub| TokenJson[sub]["subtype"] || sub}.flatten
-  end
+  value["subtype"].map!{|sub| TokenJson[sub]["subtype"] || sub}.flatten! while value["subtype"].any?{|sub| TokenJson[sub]["subtype"]}
   value["subtype"] = value["subtype"][0] if value["subtype"].length == 1
 end
 TokenJson.each_pair do |key , value|
