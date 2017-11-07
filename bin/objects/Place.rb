@@ -41,7 +41,7 @@ if PlaceJson["default_board"]
   err = nil
   err = "row" if board["row"].nil? || board["row"] < 1
   err = "col" if board["col"].nil? || board["col"] < 1
-  raise "default_board must have 1 or more #{err}." if err
+  raise "default_board must have 1 or more #{err}s but it only have #{board[err]}." if err
   rows = [*0...board["row"]].map{|num| "r#{num}"}
   cols = [*0...board["col"]].map{|num| "c#{num}"}
   rows.product(cols).map(&:join).each{|grid| Places[grid.to_sym] = {"name" => grid}}
@@ -62,7 +62,6 @@ if PlaceJson["default_board"]
       val["adjs"] << val[adj]
     end
     Places[key] = Place.new(key , val)
-    p Places
   end
 else
   PlaceJson.each_pair do |key,value|
