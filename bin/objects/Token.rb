@@ -6,33 +6,15 @@ class Token
     @to_sym = key.to_sym
     @name = value["name"]
     @num = 0
-
-    @subtype = \
-      case value["subtype"] 
-      when String then eval "#{value['subtype'].capitalize}.new"
-      when Array 
-        buf = {}
-        value["subtype"].each{|sub| buf[sub.to_sym] = eval "#{sub.capitalize}.new"}
-        buf
-      else nil
-    end
-    @subtype = @subtype.subtype while @subtype.is_a?(Token)
-    if value["amount"].is_a?(Hash)
-      (eval "#{value["subtype"].capitalize}.new.subtype.keys.map(&:to_s)").each do |key|
-        value["amount"][key] = value["amount"][value["subtype"]] unless value["amount"][key]
-      end
-      value["amount"].delete(value["subtype"])
-    end
-    @amount = value["amount"]
   end
-  def init
-    case @amount
+  def init(amo = nil)
+    case amo
     when Hash 
-      @amount.each_pair do |key,value|
+      amo.each_pair do |key,value|
         value.times{hold(eval "#{key.to_s.capitalize}.new")}
       end
-    when Fixnum
-      @num = @amount
+    when Integer
+      @num = amo
     end
   end
   def add(num = 1)
@@ -44,16 +26,42 @@ class Token
 end
 
 class TokenHolder < Hash
+  def setup(*token)
+    token.flatten.each{|token| self[token] = eval "#{token.to_s.capitalize}.new(init:true)"}
+  end
 end
 Tokens = TokenHolder.new
 
 TokenDef = "#{ __FILE__.split("/")[0..-2].join("/")}/def/Token.json"
-JSON.parse(File.open(TokenDef,"r").read).each_pair do |key , value|
+TokenJson = JSON.parse(File.open(TokenDef,"r").read)
+TokenJson.each_value do |value|
+  next unless value["amount"].is_a?(Hash)
+  while value["amount"].keys.any?{|sub| TokenJson[sub]["subtype"]}
+    value["amount"].keys.each do |sub|
+      next unless TokenJson[sub]["subtype"]
+      [TokenJson[sub]["subtype"]].flatten.each do |grandsub|
+        value["amount"][grandsub] ||= value["amount"][sub]
+      end
+      value["amount"].delete sub
+    end
+  end
+end
+TokenJson.each_value do |value|
+  next unless value["subtype"]
+  value["subtype"] = [value["subtype"]].flatten
+  while value["subtype"].any?{|sub| TokenJson[sub]["subtype"]}
+    value["subtype"] = value["subtype"].map{|sub| TokenJson[sub]["subtype"] || sub}.flatten
+  end
+  value["subtype"] = value["subtype"][0] if value["subtype"].length == 1
+end
+TokenJson.each_pair do |key , value|
   eval <<-EOS
     class #{key.capitalize} < Token
-      def initialize(key = '#{key}',value = #{value} , **option)
-        super(key,value)
-        init if option[:init]
+      @@subtype = #{value['subtype'] || []}
+      @@amount = #{value['amount'] || 0}
+      def initialize(**opt)
+        super('#{key}',#{value})
+        init(@@amount) if opt[:init]
       end
     end
   EOS
