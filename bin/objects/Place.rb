@@ -66,11 +66,9 @@ class DefaultBoard < Hash
     end
 	end
 end
-hoge =DefaultBoard.new(8,8)
-p hoge
 
 Places = PlaceHolder.new
-PlaceDef = "#{ __FILE__.split("/")[0..-2].join("/")}/def/Place.json"
+PlaceDef = "#{File.expand_path($0).split("/")[0..-2].join("/")}/def/Place.json"
 PlaceJson = JSON.parse(File.open(PlaceDef,"r").read)
 if PlaceJson["default_board"]
   board = PlaceJson["default_board"]
