@@ -101,4 +101,15 @@ Places = if PlaceJson["default_board"]
   end
 end
 Places.reconnect
+class Array
+  def carve(&block)
+    cnt = 0
+    self.each do |n|
+      break if yield(n)
+      cnt += 1
+    end
+    [self[0..cnt]] + (self[cnt+1] ? self[cnt+1..-1].carve(&block) : [])
+  end
+end
+p [1,2,3,4,5,6].carve{|n|n%2 == 0}
 p Places[0,1].gather(:right_down).map(&:to_sym)
