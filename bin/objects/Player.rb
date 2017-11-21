@@ -8,3 +8,16 @@ class Player
     @pl_num - 1
   end
 end
+class PlayreHolder < Hash
+  def initialize
+    @players = {}
+    @playing = nil
+  end
+  def add_player(name = nil)
+    pl = name ? Player.new(name) : Player.new
+    @players[pl.to_sym] = pl
+  end
+  def next
+    @players.keys
+  end
+end

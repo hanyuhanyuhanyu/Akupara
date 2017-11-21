@@ -10,7 +10,7 @@ def confirm_role
 end
 
 def play
-  true
+  :close
 end
 
 def calculate
