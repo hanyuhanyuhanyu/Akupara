@@ -1,3 +1,4 @@
+require 'json'
 def init
   puts "------Method 'init' called------"
   puts "When you run main.rb, Akupara call the method 'init' first."
@@ -20,8 +21,34 @@ def close
   puts ""
 end
 
-SeqDef = __FILE__.split("/")[0..-3].join("/") + "/sequence/Sequence.json"
-JSON.parse(File.open(SeqDef,"r").read).each_pair do |key,value|
+class Sequence
+  def initialize(method_hash)
+    @methods = method_hash.values.flatten.map(&:to_sym)
+    @each_divs = {}
+    method_hash.each_pair do |key,value|
+      @each_divs[key.to_sym] = value.is_a?(Array) ? value[0].to_sym : value.to_sym
+    end
+  end
+  def run(met = @methods[0])
+    while met
+      met = @each_divs[met] if @each_divs[met]
+      buf = send(met)
+      met = if @methods.include?(buf)
+        buf
+      elsif @each_divs[buf]
+        @each_divs[buf]
+      else
+        buf = @methods[@methods.index(met) + 1]
+        @each_divs[:close] == buf ? @each_divs[:iterate] : @methods[@methods.index(met) + 1]
+      end
+    end
+  end
+end 
+
+SeqDef = "#{File.expand_path('../../sequence/Sequence.json',__FILE__)}"
+MethodHash = JSON.parse(File.open(SeqDef,"r").read)
+Sequences = Sequence.new(MethodHash)
+MethodHash.each_pair do |key,value|
   next if value == ""
   def_move = "puts __method__.to_s+' is called as member of #{key}.'" 
   joiner = "\n" + (key == 'iterate' ? 'nil until ' : '')
