@@ -69,10 +69,6 @@ class Place
       @arounds << value[dir].to_sym 
     end
   end
-  def parachute(place)
-    warn "Warning:It is not recommended that instance of Place do 'parachute' cause it should be parahuted."
-    super(place)
-  end        
   def adj?(place)
     @adjs.include?(place)
   end

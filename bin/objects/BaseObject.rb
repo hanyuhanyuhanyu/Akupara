@@ -7,8 +7,7 @@ class BaseObject
     @count += 1
     @count - 1
   end
-  def parachute(place)
-    return unless place.is_a?(Place)
+  def alight(place)
     @where = place.to_sym
   end
   def hold(token)
