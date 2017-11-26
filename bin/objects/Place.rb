@@ -76,15 +76,7 @@ class Place
     @adjs << place unless adj?(place)
   end
   def method_missing(method,*args,&block)
-    begin
-      Places.send(method,self.to_sym,*args,&block)
-    rescue => err
-      if err.is_a?(NoMethodError) then
-        raise NoMethodError.new("undefined method '#{method.to_s}' for #{self} and #{Places.class} (NoMethodError)")
-      else
-        raise err
-      end
-    end
+    Places.send(method,self.to_sym,*args,&block)
   end
 end
 PlaceDef = "#{File.expand_path('../def/Place.json',__FILE__)}"

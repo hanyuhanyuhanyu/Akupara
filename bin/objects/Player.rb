@@ -8,16 +8,18 @@ class Player
     @pl_num - 1
   end
 end
-class PlayreHolder < Hash
+class PlayerHolder < Hash
+  attr_reader :playing
   def initialize
-    @players = {}
     @playing = nil
   end
   def add_player(name = nil)
     pl = name ? Player.new(name) : Player.new
-    @players[pl.to_sym] = pl
+    self[pl.to_sym] = pl
+    @playing ||= self[self.keys[0]] 
   end
   def next
-    @players.keys
+    @playing = self[self.keys[self.values.index[@playing]+1]]
   end
 end
+Players = PlayerHolder.new
