@@ -1,5 +1,5 @@
 {
-  "init":["set_token"]
-  ,"iterate":["search_placeble","require_input","reverse","rotate"]
+  "init":["set_player","set_token"]
+  ,"iterate":["require_input","place_stone","reverse","rotate"]
   ,"close":["count","praise_winner"]
 }

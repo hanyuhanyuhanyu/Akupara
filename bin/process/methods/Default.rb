@@ -30,9 +30,10 @@ class Sequence
     end
   end
   def run(met = @methods[0])
+    game = Game.new
     while met
       met = @each_divs[met] if @each_divs[met]
-      buf = send(met)
+      buf = game.send(met)
       met = if @methods.include?(buf)
         buf
       elsif @each_divs[buf]
