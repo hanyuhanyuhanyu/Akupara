@@ -1,11 +1,12 @@
 require 'json'
 
 class Token
-  attr_reader :name , :subtype , :amount
+  attr_reader :name , :subtype , :amount ,:ally
   def initialize(key , value = {})
     @to_sym = key.to_sym
     @name = value["name"]
     @num = 0
+    @ally = nil
   end
   def init(amo = nil)
     case amo
@@ -22,6 +23,9 @@ class Token
   end
   def reduce(num = 1)
     @num -= num
+  end
+  def ally?(token)
+    @ally == token.ally
   end
 end
 
