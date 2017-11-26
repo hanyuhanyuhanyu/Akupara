@@ -1,21 +1,21 @@
-def token_load
-  puts "this method will distribute enomerous number of token on you board."
-  Tokens.setup(:disease,:cure,:base)
-#  p Tokens
-#  p Tokens[:disease]
-  p Tokens
-end
-def confirm_role
-  puts "this method will distribute roles to every player."
+def set_token
 end
 
-def play
-  :close
+def search_placeble
+end
+def require_input
+end
+def reverse
+end
+def rotate
 end
 
-def calculate
-  puts "this do nothing!"
+def count
 end
-def finish
-  puts "end of line..."
-end
+def praise_winner
+end 
+
+
+
+
+
