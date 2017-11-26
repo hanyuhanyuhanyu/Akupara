@@ -1,5 +1,5 @@
 {
-  "init":["token_load","confirm_role"]
-  ,"iterate":["play"]
-  ,"close":["calculate","finish"]
+  "init":["set_token"]
+  ,"iterate":["search_placeble","require_input","reverse","rotate"]
+  ,"close":["count","praise_winner"]
 }
