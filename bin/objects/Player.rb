@@ -19,7 +19,7 @@ class PlayerHolder < Hash
     @playing ||= self[self.keys[0]] 
   end
   def next
-    @playing = self.values[self.values.index[@playing]+1]
+    @playing = self.values[self.values.index(@playing)+1]
   end
 end
 Players = PlayerHolder.new

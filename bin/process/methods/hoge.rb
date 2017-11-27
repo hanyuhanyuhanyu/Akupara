@@ -58,7 +58,7 @@ class Placeble < Array
 end
 class Place
   def placed?
-    !!@hold[:stone]
+    !!@hold&.[](:stone)
   end
 end
 class PlaceHolder
