@@ -14,7 +14,13 @@ class Stone
 end
 module Stonemod
   def ally?(stone)
-    @to_sym == stone
+    @to_sym == stone.color
+  end
+  def color
+    self.class.name.downcase.to_sym
+  end
+  def ally
+    color
   end
 end
 class White 
@@ -55,24 +61,32 @@ class Place
     !!@hold&.[](:stone)
   end
 end
-class DefaultBoard
+class PlaceHolder
   def placeble?(place,dir=nil)
     unless dir 
-      DefaultBoard.def_dirs.each do |dir|
-        return true if placeble?(place,dir)  
-      end  
-      return false
+      ret = false
+      directions.each do |dir|
+        ret = placeble?(place,dir)
+        break ret if !!ret
+      end
+      return ret
     end
     return false if Places[place].placed?
     gather(place,dir)[1..-1].take_while(&:placed?).map{|v|v[:stone]}.tap do |stones|
       r = false
       stones.each do |i|
-        if (i==stones[0])..(i!=stones[0])
-          break r = i if i != stones[0]
+        if (i.ally? stones[0])..(!i.ally?(stones[0]))
+          break r = i.color if !i.ally?(stones[0])
         end
       end
       break r
     end
+  end
+end
+class Player
+  def add_placeble(place)
+    return unless @hold[:placeble]
+    @hold[:placeble] << place unless @hold[:placeble].include? place
   end
 end
 class Game
@@ -93,18 +107,19 @@ class Game
     puts "input the place where you will place the stone like following example"
     puts "  r3c3"
     input = gets.chomp.to_sym
-    unless Players.playing[:placeble].include?(input)
+    unless playing[:placeble].include?(input)
       puts "you cannot place the stone on #{input}!" 
       return :require_input
     end
     @last_placed = input
-    Places[input].hold Stone.color(Players.playing.ally)
+    Places[input].hold Stone.color(playing.ally)
   end
   def place_stone
     pls = Players.values.map{|v| v[:placeble].delete @last_placed}
-    Places[@last_placed].arounds.map{|v|Places[v]}.each{|v| p v.placeble?,v.to_sym}
+    #ひっくり返す
   end
   def reverse
+    Places[@last_placed].arounds.each{|v| Players.values.select{|pl|pl.ally == v.placeble?}&.first&.add_placeble v.to_sym}
   end
   def rotate
     :count
