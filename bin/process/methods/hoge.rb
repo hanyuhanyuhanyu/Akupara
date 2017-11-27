@@ -64,7 +64,15 @@ class DefaultBoard
       return false
     end
     return false if Places[place].placed?
-    gather(place,dir)[1..-1]&.take_while(&:placed?)&.map{|v|v[:stone]}.tap{|g| return (g.count{|v|v.ally?(Players.playing.ally)} >= 1 && !g[0].ally?(Players.playing.ally))}
+    gather(place,dir)[1..-1].take_while(&:placed?).map{|v|v[:stone]}.tap do |stones|
+      r = false
+      stones.each do |i|
+        if (i==stones[0])..(i!=stones[0])
+          break r = i if i != stones[0]
+        end
+      end
+      break r
+    end
   end
 end
 class Game
