@@ -58,7 +58,7 @@ class Placeble < Array
 end
 class Place
   def placed?
-    !!@hold&.[](:stone)
+    !!@hold[:stone]
   end
 end
 class PlaceHolder
@@ -76,7 +76,7 @@ class PlaceHolder
       r = false
       stones.each do |i|
         if (i.ally? stones[0])..(!i.ally?(stones[0]))
-          break r = i.color if !i.ally?(stones[0])
+          break r = i if !i.ally?(stones[0])
         end
       end
       break r
@@ -112,16 +112,23 @@ class Game
       return :require_input
     end
     @last_placed = input
-    Places[input].hold Stone.color(playing.ally)
   end
   def place_stone
-    pls = Players.values.map{|v| v[:placeble].delete @last_placed}
+    Places[@last_placed].hold Stone.color(playing.ally)
+    Players.values.map{|v| v[:placeble].delete @last_placed}
     #ひっくり返す
   end
   def reverse
-    Places[@last_placed].arounds.each{|v| Players.values.select{|pl|pl.ally == v.placeble?}&.first&.add_placeble v.to_sym}
+    Places[@last_placed].arounds.each do |v|
+      v.placeble?.tap{|place| 
+        next unless place
+        Players.values.select{|pl| pl.ally? place}&.first&.add_placeble v.to_sym
+      }
+    end
+    p Players
   end
   def rotate
+    Players.next
     :count
   end
 
