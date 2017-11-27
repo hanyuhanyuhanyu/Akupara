@@ -23,3 +23,6 @@ class PlayerHolder < Hash
   end
 end
 Players = PlayerHolder.new
+def playing
+  Players.playing
+end
