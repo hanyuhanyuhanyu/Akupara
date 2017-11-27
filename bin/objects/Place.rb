@@ -10,7 +10,7 @@ class PlaceHolder < Hash
 end
 class DefaultBoard < PlaceHolder
   @default_dirs = %w|right_down right right_up down up left_down left left_up|
-  def self.def_dirs; @default_dirs;end
+  def self.directions; @default_dirs;end
  	grid = [1,0,-1]
   @grid_defs = {
  		"left_up" => [grid , grid],
@@ -23,7 +23,6 @@ class DefaultBoard < PlaceHolder
   def initialize(row , col , setting)
     @row = row; @col = col
     origin = setting["origin"]||"left_up";type = setting["type"]||"square"
-  	directions = DefaultBoard.def_dirs
   	@grid_hash = {}
   	directions.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin || "left_up"][ind]}
     all_arr = [*0...row].product([*0...col])
@@ -51,9 +50,13 @@ class DefaultBoard < PlaceHolder
     (block.call(self[place]) ? [self[place]] : []) + self.gather(target,direction,&block)
   end
 end
+def directions
+  DefaultBoard.directions
+end
+
 class Place
-  attr_reader :to_sym , :name , :adjs , :arounds , :direction
-  DefaultBoard.def_dirs.each do |dir|
+  attr_reader :to_sym , :name , :direction
+  directions.each do |dir|
     define_method(dir.to_sym){@direction[dir.to_sym]&.to_sym}
   end
   def initialize(key , value)
@@ -63,12 +66,18 @@ class Place
     @holding = {}
     @direction = {}
     @arounds = []
-    DefaultBoard.def_dirs.each do |dir|
+    directions.each do |dir|
       next unless value[dir]
       @direction[dir.to_sym] = value[dir].to_sym 
       @arounds << value[dir].to_sym 
     end
   end
+  def arounds
+    @arounds.map{|v| Places[v]}
+  end 
+  def adjs
+    @adjs.map{|v| Places[v]}
+  end 
   def adj?(place)
     @adjs.include?(place)
   end
