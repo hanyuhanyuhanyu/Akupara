@@ -116,7 +116,6 @@ class Game
   def place_stone
     Places[@last_placed].hold Stone.color(playing.ally)
     Players.values.map{|v| v[:placeble].delete @last_placed}
-    #ひっくり返す
   end
   def reverse
     Places[@last_placed].arounds.each do |v|
