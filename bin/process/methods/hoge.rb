@@ -41,21 +41,6 @@ class Black
     White.new
   end
 end
-class Placeble < Array
-  def to_sym
-    self.class.name.downcase.to_sym
-  end
-  def initialize(color=nil)
-    @ally = color
-    buf = case color
-    when :black
-      %i|r3c2 r2c3 r5c4 r4c5|.each{|p| self << p }
-    when :white
-      %i|r4c2 r5c3 r2c4 r3c5|.each{|p| self << p }
-    end
-    self
-  end
-end
 class Place
   def placed?
     !!@hold&.[](:stone)
@@ -95,21 +80,15 @@ class Player
   def ally
     @to_sym
   end 
-  def reset_placeble
-    @hold[:placeble] = Placeble.new
-  end
-  def add_placeble(place)
-    return unless @hold[:placeble]
-    @hold[:placeble] << place unless @hold[:placeble].include? place
-  end
   def search_placeble
-    @hold[:placeble] = Placeble.new
+    @hold ||= {}
+    @hold[:placeble] = []
     Places.values.reject(&:placed?).reject{|v| v.arounds.none?(&:placed?)}.each do |plc|
       directions.each do |dir|
-        places = plc.gather(dir)[1..-1].take_while(&:placed?)
-        next if places.length < 2
-        next if places[0].ally?(self)
-        next if places.map(&:ally).uniq.length < 2
+        places = plc.gather(dir).drop(1).take_while(&:placed?)
+        next if places.length < 2 \
+                || places[0].ally?(self) \
+                || places.map(&:ally).uniq.length < 2
         @hold[:placeble] << plc.to_sym
         break
       end
@@ -126,11 +105,10 @@ class Game
   def set_token
     %i|r3c3 r4c4|.each{|p|Places[p].hold White.new}
     %i|r3c4 r4c3|.each{|p|Places[p].hold Black.new}
-    Players.values[0].hold Placeble.new(:white)
-    Players.values[1].hold Placeble.new(:black)
   end
 
   def require_input
+    Players.values.each(&:search_placeble)
     return :count if Players.values.lazy.map{|v|v[:placeble]}.all?{|v|v == []}
     return :rotate if playing[:placeble] == []
     puts "input the place where you will place the stone like following example"
@@ -144,17 +122,9 @@ class Game
   end
   def place_stone
     @last_placed.hold Stone.color(playing.ally)
-    Players.values.map{|v| v[:placeble].delete @last_placed.to_sym}
   end
   def reverse
     @last_placed.reverse_arounds
-    Players.values.each(&:search_placeble)
-    Places.values.select(&:placed?).map(&:arounds).flatten.uniq.each do |v|
-      can_place = v.placeble?
-      next unless can_place
-      Players[can_place].add_placeble v.to_sym
-    end
-    p Players
   end
   def rotate
     Players.next
