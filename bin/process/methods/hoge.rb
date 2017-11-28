@@ -1,10 +1,6 @@
-class Class
-  def inherit_basic_object
-    self.prepend BaseMods
-  end 
-end 
-class Stone < BaseObject
-  inherit_basic_object
+
+class Stone
+  inherit_basics
   attr_reader :color
   def initialize(ally)
     @ally = ally
