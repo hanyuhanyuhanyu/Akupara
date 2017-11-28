@@ -66,6 +66,7 @@ class Place
     @hold = {}
     @direction = {}
     @arounds = []
+    @placed = false
     directions.each do |dir|
       next unless value[dir]
       @direction[dir.to_sym] = value[dir].to_sym 
@@ -86,6 +87,15 @@ class Place
   end
   def method_missing(method,*args,&block)
     Places.send(method,self,*args,&block)
+  end
+  def placed
+    @placed = true
+  end
+  def leaved
+    @placed = false
+  end
+  def placed?
+    @placed
   end
 end
 PlaceDef = "#{File.expand_path('../def/Place.json',__FILE__)}"

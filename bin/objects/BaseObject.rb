@@ -21,28 +21,38 @@ module BaseMethods
     @count - 1
   end
   def alight(place)
-    @where = place.to_sym
+    @where&.leaved if @where&.is_a?(Place)
+    @where = place
+    place.placed if place.is_a?(Place)
+  end
+  def leave
+    @where&.leaved
+    @where = nil
   end
   def hold(token)
-    if @hold[token.to_sym]
+    if @hold[token.to_sym] || !token.is_a?(Token)
       @hold[token.to_sym].add
     else
       @hold[token.to_sym] = token
     end
   end
+  def release(token)
+    return unless @hold[token.to_sym]
+    @hold[token.to_sym] = token.is_a?(Token) ? @hold[token.to_sym].reduce : nil 
+  end
   def [](token)
     @hold[token.to_sym]
   end
-  def ally_of(token)
-    @ally = (token.is_a?(Symbol) ? token : token.ally)
+  def ally_of(arg)
+    @ally = (arg.is_a?(Symbol) ? arg : arg.ally)
   end
-  def ally?(token)
-    return false if self.ally.nil? || token.ally.nil?
-    self.ally == token.ally
+  def ally?(arg)
+    return false if self.ally.nil? || arg.ally.nil?
+    self.ally == arg.ally
   end
-  def opponent?(token)
-    return false if self.ally.nil? || token.ally.nil?
-    !ally?(token)
+  def opponent?(arg)
+    return false if self.ally.nil? || arg.ally.nil?
+    !ally?(arg)
   end  
 end
 class Class
