@@ -1,4 +1,4 @@
-module BaseMods
+module BaseInitialize
   def initialize(*args,&block)
     var_hash = {
       ally:nil,
@@ -13,7 +13,7 @@ module BaseMods
     super(*args,&block)
   end
 end
-class BaseObject
+module BaseMethods
   attr_reader :ally,:to_sym,:where
   @count = 0
   def self.addcount
@@ -43,9 +43,14 @@ class BaseObject
   def opponent?(token)
     return false if self.ally.nil? || token.ally.nil?
     !ally?(token)
-  end
+  end  
 end
-
+class Class
+  def inherit_basics
+    self.prepend BaseInitialize
+    self.include BaseMethods
+  end 
+end 
 
 
 

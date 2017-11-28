@@ -5,7 +5,7 @@ files = Dir.glob(dir + "/*").select{|fl| fl.split("/")[-1] =~ /^[A-Z].*\.rb$/ &&
 files.map do |fl|
   fl.split("/")[-1].gsub(/\..+$/,"")
 end.each do |kls|
-  eval "class #{kls} < BaseObject\n end"
+  eval "class #{kls} \n inherit_basics\n end"
 end
 
 files.reject do |file|
