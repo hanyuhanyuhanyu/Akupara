@@ -55,6 +55,7 @@ def directions
 end
 
 class Place
+  prepend BaseMods
   attr_reader :to_sym , :name , :direction
   directions.each do |dir|
     define_method(dir.to_sym){Places[@direction[dir.to_sym]&.to_sym]}

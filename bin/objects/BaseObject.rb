@@ -1,6 +1,5 @@
 module BaseMods
-  attr_reader :ally,:to_sym,:where
-  def initialize
+  def initialize(*args,&block)
     var_hash = {
       ally:nil,
       hold:Hash.new,
@@ -11,9 +10,11 @@ module BaseMods
       name = "@"+name.to_s
       instance_variable_set(name,val) unless instance_variable_get(name) 
     end
+    super(*args,&block)
   end
 end
 class BaseObject
+  attr_reader :ally,:to_sym,:where
   @count = 0
   def to_sym
     @to_sym || @to_sym = self.class.name.downcase.to_sym
@@ -26,8 +27,6 @@ class BaseObject
     @where = place.to_sym
   end
   def hold(token)
-    @hold ||= {}
-    token.to_sym
     if @hold[token.to_sym]
       @hold[token.to_sym].add
     else
@@ -35,7 +34,6 @@ class BaseObject
     end
   end
   def [](token)
-    @hold ||= {}
     @hold[token.to_sym]
   end
   def ally_of(token)
