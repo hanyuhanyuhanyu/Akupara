@@ -1,15 +1,12 @@
 class Stone < BaseObject
   prepend BaseMods
   attr_reader :color
-  def initialize(col)
-    @color = col
+  def initialize(ally)
+    @ally = ally
   end 
   def reverse
-    @color = @color == :white ? :black : :white
+    @ally = @ally == :white ? :black : :white
     self
-  end 
-  def ally
-    @color
   end 
 end
 class Place
@@ -18,10 +15,6 @@ class Place
   end
   def ally
     @hold[:stone]&.ally
-  end
-  def ally?(obj)
-    return false unless self.ally || obj.ally
-    self.ally == obj.ally
   end
   def reverse
     return unless @hold[:stone]
