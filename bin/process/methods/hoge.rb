@@ -48,7 +48,11 @@ class PlaceHolder
   end
   def reverse_arounds(place,dir=nil)
     return directions.each{|d|place.reverse_arounds d} unless dir
-    place.gather(dir)[1..-1].tap{|plc| break [] if plc.none?{|p| p.ally? place}}.take_while{|p| !p.ally?(place)}.each(&:reverse)
+    stones = place.gather(dir).drop(1).take_while(&:placed?)
+    return if stones.length < 2 \
+              || place.ally?(stones[0]) \
+              || stones.map(&:ally).uniq.length < 2
+    stones.take_while{|p| p.opponent? place}.each(&:reverse)
   end
 end
 class Player
@@ -85,14 +89,16 @@ class Game
     Players.values.each(&:search_placeble)
     show_the_board
     return :close if Players.values.lazy.map{|v|v[:placeble]}.all?(&:empty?)
-    return :rotate if playing[:placeble].empty?
-    puts "input the place where you will place the stone like following example"
-    puts "  r3c3"
-    input = gets.chomp.to_sym
-    unless playing[:placeble].include?(input)
-      puts "you cannot place the stone on #{input}!" 
-      return :require_input
+    if playing[:placeble].empty?
+      print "#{playing.ally.to_s.capitalize} cannot place a stone anywhere! skip the turn...";gets
+      return :rotate 
     end
+    puts "#{playing.ally.to_s.capitalize} turn:"
+    puts "type the place where you'd like to place the stone following the example below."
+    puts "  33 # => it means r3c3"
+    begin
+      input = ?r.+(gets.strip.insert(-2,?c)).to_sym
+    end until (playing[:placeble].include?(input)||puts("you cannot place the stone on #{input}! type again..."))
     @last_placed = Places[input]
   end
   def place_stone
@@ -103,7 +109,6 @@ class Game
   end
   def rotate
     Players.next
-    :count
   end
 
   def count
