@@ -24,11 +24,16 @@ class BaseObject
     @hold ||= {}
     @hold[token.to_sym]
   end
-  def ally_of(pl)
-    @ally = pl.to_sym
+  def ally_of(token)
+    @ally = (token.methods.include?(:allly) ? token.ally : token)
   end
   def ally?(token)
-    @ally == token.ally
+    return false if self.ally.nil? || token.ally.nil?
+    self.ally == token.ally
+  end
+  def opponent?(token)
+    return false if self.ally.nil? || token.ally.nil?
+    !ally?(token)
   end
 end
 
