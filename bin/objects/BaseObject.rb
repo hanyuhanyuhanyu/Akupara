@@ -1,5 +1,19 @@
+module BaseMods
+  attr_reader :ally,:to_sym,:where
+  def initialize
+    var_hash = {
+      ally:nil,
+      hold:Hash.new,
+      where:nil,
+      to_sym:self.class.name.downcase.to_sym,
+      }
+    var_hash.each_pair do |name,val|
+      name = "@"+name.to_s
+      instance_variable_set(name,val) unless instance_variable_get(name) 
+    end
+  end
+end
 class BaseObject
-  attr_reader :ally, :to_sym, :where
   @count = 0
   def to_sym
     @to_sym || @to_sym = self.class.name.downcase.to_sym
