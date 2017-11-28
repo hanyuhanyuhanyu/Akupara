@@ -25,7 +25,7 @@ class BaseObject
     @hold[token.to_sym]
   end
   def ally_of(token)
-    @ally = (token.methods.include?(:allly) ? token.ally : token)
+    @ally = (token.is_a?(Symbol) ? token : token.ally)
   end
   def ally?(token)
     return false if self.ally.nil? || token.ally.nil?
