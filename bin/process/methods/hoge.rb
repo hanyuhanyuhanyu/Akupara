@@ -92,6 +92,9 @@ class PlaceHolder
   end
 end
 class Player
+  def ally
+    @to_sym
+  end 
   def reset_placeble
     @hold[:placeble] = Placeble.new
   end
@@ -99,6 +102,19 @@ class Player
     return unless @hold[:placeble]
     @hold[:placeble] << place unless @hold[:placeble].include? place
   end
+  def search_placeble
+    @hold[:placeble] = Placeble.new
+    Places.values.reject(&:placed?).reject{|v| v.arounds.none?(&:placed?)}.each do |plc|
+      directions.each do |dir|
+        places = plc.gather(dir)[1..-1].take_while(&:placed?)
+        next if places.length < 2
+        next if places[0].ally?(self)
+        next if places.map(&:ally).uniq.length < 2
+        @hold[:placeble] << plc.to_sym
+        break
+      end
+    end 
+  end 
 end
 class Game
   def initialize
@@ -127,26 +143,18 @@ class Game
     @last_placed = Places[input]
   end
   def place_stone
-<<<<<<< HEAD
-    Places[@last_placed].hold Stone.color(playing.ally)
-    Players.values.map{|v| v[:placeble].delete @last_placed}
-=======
     @last_placed.hold Stone.color(playing.ally)
     Players.values.map{|v| v[:placeble].delete @last_placed.to_sym}
->>>>>>> 0bcd59174a9d2191a1ff3aa9cd81581e32e8fe1a
   end
   def reverse
     @last_placed.reverse_arounds
-    Players.values.each{|p| p.reset_placeble}
-    p Players
+    Players.values.each(&:search_placeble)
     Places.values.select(&:placed?).map(&:arounds).flatten.uniq.each do |v|
       can_place = v.placeble?
-      p [v,can_place]
       next unless can_place
       Players[can_place].add_placeble v.to_sym
     end
     p Players
-    p Places[2,3].placeble?
   end
   def rotate
     Players.next
