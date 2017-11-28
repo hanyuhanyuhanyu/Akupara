@@ -30,7 +30,7 @@ module BaseMethods
     @where = nil
   end
   def hold(token)
-    if @hold[token.to_sym] || !token.is_a?(Token)
+    if @hold[token.to_sym] && !token.is_a?(Token)
       @hold[token.to_sym].add
     else
       @hold[token.to_sym] = token
