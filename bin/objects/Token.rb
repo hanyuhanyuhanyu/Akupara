@@ -5,7 +5,7 @@ class Token
   def initialize(key , value = {})
     @to_sym = key.to_sym
     @name = value["name"]
-    @num = 0
+    @num = 1
     @ally = nil
   end
   def init(amo = nil)
@@ -23,6 +23,7 @@ class Token
   end
   def reduce(num = 1)
     @num -= num
+    nil if @num <= 0
   end
 end
 
