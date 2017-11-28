@@ -16,9 +16,6 @@ end
 class BaseObject
   attr_reader :ally,:to_sym,:where
   @count = 0
-  def to_sym
-    @to_sym || @to_sym = self.class.name.downcase.to_sym
-  end
   def self.addcount
     @count += 1
     @count - 1

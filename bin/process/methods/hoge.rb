@@ -1,5 +1,10 @@
+class Class
+  def inherit_basic_object
+    self.prepend BaseMods
+  end 
+end 
 class Stone < BaseObject
-  prepend BaseMods
+  inherit_basic_object
   attr_reader :color
   def initialize(ally)
     @ally = ally
@@ -20,6 +25,13 @@ class Place
     return unless @hold[:stone]
     @hold[:stone] = @hold[:stone].reverse
   end
+  def show
+    case @hold[:stone]&.ally
+      when nil then "　"
+      when :white then "○"
+      when :black then "●"
+    end
+  end 
 end
 class PlaceHolder
   def placeble?(place,dir=nil)
@@ -71,6 +83,7 @@ class Game
 
   def require_input
     Players.values.each(&:search_placeble)
+    show_the_board
     return :close if Players.values.lazy.map{|v|v[:placeble]}.all?(&:empty?)
     return :rotate if playing[:placeble].empty?
     puts "input the place where you will place the stone like following example"
@@ -94,9 +107,35 @@ class Game
   end
 
   def count
+    result = {white:0,black:0}
+    Places.values.each{|plc| next if plc.ally.nil?; result[plc.ally] += 1}
+    result.each_pair do |key,val|
+      puts "#{key.to_s} => #{val}"
+    end
+    @winner = case result[:white] <=> result[:black]
+      when 1 then :white
+      when 0 then :draw
+      else :black
+    end
   end
   def praise_winner
+    if @winner == :draw
+      puts "draw!"
+    else
+      puts "#{@winner} won!"
+    end
   end 
+
+  def show_the_board
+    rows = ["　　"]
+    0.upto(7){|n| rows[0] += "c#{n}　"}
+    rows[0] += "\n"
+    0.upto(7) do |num|
+      rows << "r#{num}｜" + Places.values[num*8...(num+1)*8].map(&:show).join("｜") + "｜\n"
+    end
+    row_line = "　" + "―"*(8*2+1) + "\n"
+    puts rows.join(row_line) + row_line
+  end
 end
 
 

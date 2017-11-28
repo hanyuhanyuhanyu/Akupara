@@ -20,11 +20,9 @@ class Token
     end
   end
   def add(num = 1)
-    @num||=0
     @num += num
   end
   def reduce(num = 1)
-    @num||=0
     @num -= num
   end
 end
