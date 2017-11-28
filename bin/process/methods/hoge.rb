@@ -14,7 +14,7 @@ class Stone
 end
 module Stonemod
   def ally?(stone)
-    @to_sym == stone.color
+    @to_sym == stone.ally
   end
   def color
     self.class.name.downcase.to_sym
@@ -45,7 +45,7 @@ class Placeble < Array
   def to_sym
     self.class.name.downcase.to_sym
   end
-  def initialize(color)
+  def initialize(color=nil)
     @ally = color
     buf = case color
     when :black
@@ -60,6 +60,17 @@ class Place
   def placed?
     !!@hold&.[](:stone)
   end
+  def ally
+    @hold&.[](:stone)&.ally
+  end
+  def ally?(obj)
+    return false unless self.ally || obj.ally
+    self.ally == obj.ally
+  end
+  def reverse
+    return unless @hold || @hold[:stone]
+    @hold[:stone] = @hold[:stone].reverse
+  end
 end
 class PlaceHolder
   def placeble?(place,dir=nil)
@@ -71,19 +82,19 @@ class PlaceHolder
       end
       return ret
     end
-    return false if Places[place].placed?
-    gather(place,dir)[1..-1].take_while(&:placed?).map{|v|v[:stone]}.tap do |stones|
-      r = false
-      stones.each do |i|
-        if (i.ally? stones[0])..(!i.ally?(stones[0]))
-          break r = i if !i.ally?(stones[0])
-        end
-      end
-      break r
-    end
+    return false if place.placed?
+    stones = gather(place,dir)[1..-1].take_while(&:placed?)
+    return false if stones.length < 2||stones[1..-1].none?{|p|p.ally?(stones[0])||stones[0][:stone].reverse.ally?(p)}
+  end
+  def reverse_arounds(place,dir=nil)
+    return directions.each{|d|place.reverse_arounds d} unless dir
+    place.gather(dir)[1..-1].tap{|plc| break [] if plc.none?{|p| p.ally? place}}.take_while{|p| !p.ally?(place)}.each(&:reverse)
   end
 end
 class Player
+  def reset_placeble
+    @hold[:placeble] = Placeble.new
+  end
   def add_placeble(place)
     return unless @hold[:placeble]
     @hold[:placeble] << place unless @hold[:placeble].include? place
@@ -104,6 +115,8 @@ class Game
   end
 
   def require_input
+    return :count if Players.values.lazy.map{|v|v[:placeble]}.all?{|v|v == []}
+    return :rotate if playing[:placeble] == []
     puts "input the place where you will place the stone like following example"
     puts "  r3c3"
     input = gets.chomp.to_sym
@@ -111,20 +124,29 @@ class Game
       puts "you cannot place the stone on #{input}!" 
       return :require_input
     end
-    @last_placed = input
+    @last_placed = Places[input]
   end
   def place_stone
+<<<<<<< HEAD
     Places[@last_placed].hold Stone.color(playing.ally)
     Players.values.map{|v| v[:placeble].delete @last_placed}
+=======
+    @last_placed.hold Stone.color(playing.ally)
+    Players.values.map{|v| v[:placeble].delete @last_placed.to_sym}
+>>>>>>> 0bcd59174a9d2191a1ff3aa9cd81581e32e8fe1a
   end
   def reverse
-    Places[@last_placed].arounds.each do |v|
-      v.placeble?.tap{|place| 
-        next unless place
-        Players.values.select{|pl| pl.ally? place}&.first&.add_placeble v.to_sym
-      }
+    @last_placed.reverse_arounds
+    Players.values.each{|p| p.reset_placeble}
+    p Players
+    Places.values.select(&:placed?).map(&:arounds).flatten.uniq.each do |v|
+      can_place = v.placeble?
+      p [v,can_place]
+      next unless can_place
+      Players[can_place].add_placeble v.to_sym
     end
     p Players
+    p Places[2,3].placeble?
   end
   def rotate
     Players.next

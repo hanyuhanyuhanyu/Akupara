@@ -45,9 +45,9 @@ class DefaultBoard < PlaceHolder
   end
   def gather(place , direction , &block)
     return [] unless place
-    target = self[place].send(direction)&.to_sym
+    target = place.send(direction)
     block = ->(_){true} unless block_given?
-    (block.call(self[place]) ? [self[place]] : []) + self.gather(target,direction,&block)
+    (block.call(place) ? [place] : []) + self.gather(target,direction,&block)
   end
 end
 def directions
@@ -57,13 +57,13 @@ end
 class Place
   attr_reader :to_sym , :name , :direction
   directions.each do |dir|
-    define_method(dir.to_sym){@direction[dir.to_sym]&.to_sym}
+    define_method(dir.to_sym){Places[@direction[dir.to_sym]&.to_sym]}
   end
   def initialize(key , value)
     @to_sym = key.to_sym
     @name = value["name"]
     @adjs = value["adjs"]&.reject{|val| val == ""}.uniq.map(&:to_sym)
-    @holding = {}
+    @hold = {}
     @direction = {}
     @arounds = []
     directions.each do |dir|
@@ -85,7 +85,7 @@ class Place
     @adjs << place unless adj?(place)
   end
   def method_missing(method,*args,&block)
-    Places.send(method,self.to_sym,*args,&block)
+    Places.send(method,self,*args,&block)
   end
 end
 PlaceDef = "#{File.expand_path('../def/Place.json',__FILE__)}"
