@@ -1,4 +1,5 @@
 class Player
+  prepend BaseMods
   @pl_num = 0
   def initialize(sym = ("pl_" + Player.add_pl_num.to_s).to_sym)
     @to_sym = sym

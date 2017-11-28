@@ -1,6 +1,7 @@
 require 'json'
 
 class Token
+  prepend BaseMods
   attr_reader :name , :subtype , :amount
   def initialize(key , value = {})
     @to_sym = key.to_sym
