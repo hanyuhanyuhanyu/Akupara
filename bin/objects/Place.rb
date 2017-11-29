@@ -58,7 +58,7 @@ end
 class Place
   attr_reader :to_sym , :name , :direction
   directions.each do |dir|
-    define_method(dir.to_sym){Places[@direction[dir.to_sym]&.to_sym]}
+    define_method(dir){Places[@direction[dir]]}
   end
   def initialize(key , value)
     @to_sym = key.to_sym
