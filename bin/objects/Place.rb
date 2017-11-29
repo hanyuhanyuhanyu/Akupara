@@ -9,36 +9,36 @@ class PlaceHolder < Hash
   end
 end
 class DefaultBoard < PlaceHolder
-  @default_dirs = %w|right_down right right_up down up left_down left left_up|
+  @default_dirs = %i|right_down right right_up down up left_down left left_up|
   def self.directions; @default_dirs;end
  	grid = [1,0,-1]
   @grid_defs = {
- 		"left_up" => [grid , grid],
- 		"right_up" => [grid.reverse , grid],
- 		"left_down" => [grid , grid.reverse],
-  	"right_down" => [grid.reverse , grid.reverse]
+ 		left_up:[grid , grid],
+ 		right_up:[grid.reverse , grid],
+ 		left_down:[grid , grid.reverse],
+  	right_down:[grid.reverse , grid.reverse]
 	}
   @grid_defs.each_pair{|key , val| @grid_defs[key] = val[0].product(val[1]).reject{|item| item.all?(&:zero?)}.map{|item| item.reverse}}
   def self.grid_defs;@grid_defs;end
   def initialize(row , col , setting)
     @row = row; @col = col
-    origin = setting["origin"]||"left_up"
-    type = setting["type"]||"square"
+    origin = setting["origin"]||:left_up
+    type = setting["type"]||:square
   	@grid_hash = {}
   	directions.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
     all_arr = [*0...row].product([*0...col])
     #nil cannot go here instead of 0 cause nil cannot imply that some object will be there.
-    all_arr.each{|i| self[?r.+(i.join(?c)).to_sym] = 0} 
+    all_arr.each{|i| self[?r.+(i.join(?c)).to_sym] = 0}
     all_arr.each do |i| 
-      buf_hash ={"name"=>nil,"adjs"=>[],"diagonals"=>[]}
-      buf_hash["name"] = ?r.+(i.join(?c))
+      buf_hash ={name:nil,adjs:[],diagonals:[]}
+      buf_hash[:name] = ?r.+(i.join(?c))
       @grid_hash.each_pair do |key , item|
-        arr = [i[0]+item[0],i[1]+item[1]]
-        next unless self["r#{arr[0]}c#{arr[1]}".to_sym]
-        buf_hash[key.include?("_") ? "diagonals" : "adjs"] << "r#{arr[0]}c#{arr[1]}"
-        buf_hash[key] = "r#{arr[0]}c#{arr[1]}" 
+        around = ?r.+([i[0]+item[0],i[1]+item[1]].join(?c)).to_sym
+        next unless self[around]
+        buf_hash[key.to_s.include?("_") ? :diagonals : :adjs] << around
+        buf_hash[key.to_sym] = around 
       end
-      self["r#{i[0]}c#{i[1]}".to_sym] = Place.new(buf_hash["name"] , buf_hash)
+      self[buf_hash[:name].to_sym] = Place.new(buf_hash[:name] , buf_hash)
     end
 	end
   def [](r,c=nil)
@@ -62,16 +62,17 @@ class Place
   end
   def initialize(key , value)
     @to_sym = key.to_sym
-    @name = value["name"]
-    @adjs = value["adjs"]&.reject{|val| val == ""}.uniq.map(&:to_sym)
+    @name = value[:name]
+    @adjs = value[:adjs].map(&:to_sym)
+    @diagonals = value[:diagonals].map(&:to_sym)
     @hold = {}
     @direction = {}
     @arounds = []
     @placed = false
     directions.each do |dir|
       next unless value[dir]
-      @direction[dir.to_sym] = value[dir].to_sym 
-      @arounds << value[dir].to_sym 
+      @direction[dir] = value[dir].to_sym 
+      @arounds << value[dir]
     end
   end
   def arounds
@@ -82,6 +83,8 @@ class Place
   end 
   def adj?(place)
     @adjs.include?(place)
+  end
+  def diagonals
   end
   def add_adj(place)
     @adjs << place unless adj?(place)
