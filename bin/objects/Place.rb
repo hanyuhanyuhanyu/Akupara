@@ -22,19 +22,20 @@ class DefaultBoard < PlaceHolder
   def self.grid_defs;@grid_defs;end
   def initialize(row , col , setting)
     @row = row; @col = col
-    origin = setting["origin"]||"left_up";type = setting["type"]||"square"
+    origin = setting["origin"]||"left_up"
+    type = setting["type"]||"square"
   	@grid_hash = {}
-  	directions.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin || "left_up"][ind]}
+  	directions.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
     all_arr = [*0...row].product([*0...col])
-    all_arr.each{|i| self["r#{i[0]}c#{i[1]}".to_sym] = 0}
+    all_arr.each{|i| self[?r.+(i.join(?c)).to_sym] = nil}
     all_arr.each do |i| 
       buf_hash ={}
-      buf_hash["name"] = "r#{i[0]}c#{i[1]}"
+      buf_hash["name"] = ?r.+(i.join(?c))
       buf_hash["adjs"] = []
       @grid_hash.each_pair do |key , item|
         arr = [i[0]+item[0],i[1]+item[1]]
         next unless self["r#{arr[0]}c#{arr[1]}".to_sym]
-        buf_hash["adjs"] << "r#{arr[0]}c#{arr[1]}" unless key.include?("_")
+        buf_hash[key.include?("_") ? "diagonals" : "adjs"] << "r#{arr[0]}c#{arr[1]}"
         buf_hash[key] = "r#{arr[0]}c#{arr[1]}" 
       end
       self["r#{i[0]}c#{i[1]}".to_sym] = Place.new(buf_hash["name"] , buf_hash)
