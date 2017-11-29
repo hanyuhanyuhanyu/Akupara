@@ -65,5 +65,8 @@ TokenJson.each_pair do |key , value|
     end
   EOS
 end
-
-
+TokenJson.each_pair do |key , value|
+  eval <<-EOS
+    Tokens[:#{key}] = #{key.capitalize}.new(init:true)
+  EOS
+end
