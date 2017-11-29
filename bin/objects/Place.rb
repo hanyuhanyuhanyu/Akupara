@@ -27,11 +27,11 @@ class DefaultBoard < PlaceHolder
   	@grid_hash = {}
   	directions.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
     all_arr = [*0...row].product([*0...col])
-    all_arr.each{|i| self[?r.+(i.join(?c)).to_sym] = nil}
+    #nil cannot go here instead of 0 cause nil cannot imply that some object will be there.
+    all_arr.each{|i| self[?r.+(i.join(?c)).to_sym] = 0} 
     all_arr.each do |i| 
-      buf_hash ={}
+      buf_hash ={"name"=>nil,"adjs"=>[],"diagonals"=>[]}
       buf_hash["name"] = ?r.+(i.join(?c))
-      buf_hash["adjs"] = []
       @grid_hash.each_pair do |key , item|
         arr = [i[0]+item[0],i[1]+item[1]]
         next unless self["r#{arr[0]}c#{arr[1]}".to_sym]
