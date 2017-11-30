@@ -56,7 +56,7 @@ def directions
 end
 
 class Place
-  attr_reader :to_sym , :name , :direction
+  attr_reader :to_sym , :name , :direction 
   directions.each do |dir|
     define_method(dir){Places[@direction[dir]]}
   end
@@ -68,7 +68,7 @@ class Place
     @hold = {}
     @direction = {}
     @arounds = []
-    @placed = false
+    @placing = nil
     directions.each do |dir|
       next unless value[dir]
       @direction[dir] = value[dir].to_sym 
@@ -85,6 +85,7 @@ class Place
     @adjs.include?(place)
   end
   def diagonals
+    @diagonals.map{|v| Places[v]}
   end
   def add_adj(place)
     @adjs << place unless adj?(place)
@@ -92,14 +93,17 @@ class Place
   def method_missing(method,*args,&block)
     Places.send(method,self,*args,&block)
   end
-  def placed
-    @placed = true
+  def placing
+    Places[placing]
   end
-  def leaved
-    @placed = false
+  def place(arg)
+    @placing = arg.to_sym
+  end
+  def remove
+    @placing = nil
   end
   def placed?
-    @placed
+    !!@placing
   end
 end
 PlaceDef = "#{File.expand_path('../def/Place.json',__FILE__)}"

@@ -1,4 +1,3 @@
-
 class Stone
   inherit_basics
   attr_reader :color
@@ -18,41 +17,44 @@ class Stone
   end
 end
 class Place
-  def placed?
-    !!@hold[:stone]
-  end
   def ally
-    @hold[:stone]&.ally
+    @placing&.ally
   end
   def reverse
-    return unless @hold[:stone]
-    @hold[:stone] = @hold[:stone].reverse
+    @placing.reverse if placed?
   end
   def show
-    @hold[:stone]&.show || " "
+    @placing&.show || " "
   end 
 end
 class PlaceHolder
-  def placeble?(place,dir=nil)
-    unless dir 
+  def placeble?(place,aly,direction=nil)
+    unless direction 
       ret = false
       directions.each do |dir|
-        ret = placeble?(place,dir)
+        ret = placeble?(place,aly,direction)
         break ret if !!ret
       end
     end
     return false if place.placed?
-    stones = gather(place,dir)[1..-1].take_while(&:placed?)
-    return false if stones.length < 2||stones[1..-1].none?{|p|p.ally?(stones[0])||stones[0][:stone].reverse.ally?(p)}
+    places = place.gather(direction).drop(1).take_while(&:placed?)
+    places.map(&:ally).uniq.length >= 2 && aly.opponent?(places[0]) 
+    #return false if place.placed?
+    #stones = gather(place,dir)[1..-1].take_while(&:placed?)
+    #return false if stones.length < 2||stones[1..-1].none?{|p|p.ally?(stones[0])||stones[0][:stone].reverse.ally?(p)}
   end
-  def reverse_arounds(place,dir=nil)
-    return directions.each{|d|place.reverse_arounds d} unless dir
-    stones = place.gather(dir).drop(1).take_while(&:placed?)
-    return if stones.length < 2 \
-              || place.ally?(stones[0]) \
-              || stones.map(&:ally).uniq.length < 2
-    stones.take_while{|p| p.opponent? place}.each(&:reverse)
+  def reverse_arounds(place,ally,dir=nil)
+    return directions.each{|d|place.reverse_arounds ally,d} unless dir
+    return unless place.placeble?(ally,dir)
+    place.gather(dir).drop(1).take_while{|p| p.opponent? ally}.each(&:reverse)
   end
+  def _placeable?(place,direction,ally)
+    return false if place.placed?
+    places = place.gather(direction).drop(1).take_while(&:placed?)
+    places.length >= 2 \
+      && places[0].opponent?(ally) \
+      && places.map(&:ally).uniq.length >= 2
+end
 end
 class Player
   def show
@@ -65,10 +67,7 @@ class Player
     @hold[:placeble] = []
     Places.values.reject(&:placed?).reject{|v| v.arounds.none?(&:placed?)}.each do |plc|
       directions.each do |dir|
-        places = plc.gather(dir).drop(1).take_while(&:placed?)
-        next if places.length < 2 \
-                || places[0].ally?(self) \
-                || places.map(&:ally).uniq.length < 2
+        next unless plc.placeble?(self,dir)
         @hold[:placeble] << plc.to_sym
         break
       end
@@ -83,8 +82,8 @@ class Game
     %i|white black|.each{|col| Players.add_player(col);Players.values[-1].ally_of(col)}
   end
   def set_token
-    %i|r3c3 r4c4|.each{|p|Places[p].hold Stone.new(:white)}
-    %i|r3c4 r4c3|.each{|p|Places[p].hold Stone.new(:black)}
+    %i|r3c3 r4c4|.each{|p|Places[p].place Stone.new(:white)}
+    %i|r3c4 r4c3|.each{|p|Places[p].place Stone.new(:black)}
   end
 
   def require_input
@@ -105,11 +104,11 @@ class Game
     end until (playing[:placeble].include?(input)||puts("you cannot place the stone on #{input}! type again..."))
     @last_placed = Places[input]
   end
-  def place_stone
-    @last_placed.hold Stone.new(playing.ally)
-  end
   def reverse
-    @last_placed.reverse_arounds
+    @last_placed.reverse_arounds(playing)
+  end
+  def place_stone
+    @last_placed.place Stone.new(playing.ally)
   end
   def rotate
     Players.next
