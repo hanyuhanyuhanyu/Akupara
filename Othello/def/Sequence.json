@@ -1,0 +1,5 @@
+{
+  "init":["set_player","set_token"]
+  ,"iterate":["require_input","reverse","place_stone","rotate"]
+  ,"close":["count","praise_winner"]
+}
