@@ -48,13 +48,6 @@ class PlaceHolder
     return unless place.placeble?(ally,dir)
     place.gather(dir).drop(1).take_while{|p| p.opponent? ally}.each(&:reverse)
   end
-  def _placeable?(place,direction,ally)
-    return false if place.placed?
-    places = place.gather(direction).drop(1).take_while(&:placed?)
-    places.length >= 2 \
-      && places[0].opponent?(ally) \
-      && places.map(&:ally).uniq.length >= 2
-end
 end
 class Player
   def show

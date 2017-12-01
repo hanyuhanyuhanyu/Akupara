@@ -44,12 +44,6 @@ class DefaultBoard < PlaceHolder
   def [](r,c=nil)
     super(r) || super("r#{r}c#{c}".to_sym)
   end
-  def gather(place , direction , &block)
-    return [] unless place
-    target = place.send(direction)
-    block = ->(_){true} unless block_given?
-    (block.call(place) ? [place] : []) + self.gather(target,direction,&block)
-  end
 end
 def directions
   DefaultBoard.directions
@@ -90,6 +84,12 @@ class Place
   def add_adj(place)
     @adjs << place unless adj?(place)
   end
+  def gather(direction , &block)
+    return [] unless @direction[direction]
+    target = Places[@direction[direction]]
+    block = ->(_){true} unless block_given?
+    (block.call(self) ? [self] : []) + target.gather(direction,&block)
+  end
   def method_missing(method,*args,&block)
     Places.send(method,self,*args,&block)
   end
@@ -97,7 +97,7 @@ class Place
     Places[placing]
   end
   def place(arg)
-    @placing = arg.to_sym
+    @placing = arg
   end
   def remove
     @placing = nil
