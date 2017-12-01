@@ -26,27 +26,22 @@ class Place
   def show
     @placing&.show || " "
   end 
-end
-class PlaceHolder
-  def placeble?(place,aly,direction=nil)
+  def placeble?(aly,direction=nil)
     unless direction 
       ret = false
       directions.each do |dir|
-        ret = placeble?(place,aly,direction)
+        ret = placeble?(aly,direction)
         break ret if !!ret
       end
     end
-    return false if place.placed?
-    places = place.gather(direction).drop(1).take_while(&:placed?)
+    return false if placed?
+    places = gather(direction).drop(1).take_while(&:placed?)
     places.map(&:ally).uniq.length >= 2 && aly.opponent?(places[0]) 
-    #return false if place.placed?
-    #stones = gather(place,dir)[1..-1].take_while(&:placed?)
-    #return false if stones.length < 2||stones[1..-1].none?{|p|p.ally?(stones[0])||stones[0][:stone].reverse.ally?(p)}
   end
-  def reverse_arounds(place,ally,dir=nil)
-    return directions.each{|d|place.reverse_arounds ally,d} unless dir
-    return unless place.placeble?(ally,dir)
-    place.gather(dir).drop(1).take_while{|p| p.opponent? ally}.each(&:reverse)
+  def reverse_arounds(ally,dir=nil)
+    return directions.each{|d|reverse_arounds ally,d} unless dir
+    return unless placeble?(ally,dir)
+    gather(dir).drop(1).take_while{|p| p.opponent? ally}.each(&:reverse)
   end
 end
 class Player
