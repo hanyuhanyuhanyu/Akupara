@@ -23,7 +23,7 @@ module BaseMethods
   def alight(place)
     @where&.remove if @where&.is_a?(Place)
     @where = place
-    place.placed if place.is_a?(Place)
+    place.place self if place.is_a?(Place)
   end
   def leave
     @where&.remove
