@@ -88,7 +88,7 @@ class Place
     return [] unless @direction[direction]
     target = Places[@direction[direction]]
     block = ->(_){true} unless block_given?
-    (block.call(self) ? [self] : []) + target.gather(direction,&block)
+    (block.call(target) ? [target] : []) + target.gather(direction,&block)
   end
   def method_missing(method,*args,&block)
     Places.send(method,self,*args,&block)

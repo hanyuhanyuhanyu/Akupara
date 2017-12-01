@@ -35,13 +35,13 @@ class Place
       end
     end
     return false if placed?
-    places = gather(direction).drop(1).take_while(&:placed?)
+    places = gather(direction).take_while(&:placed?)
     places.map(&:ally).uniq.length >= 2 && aly.opponent?(places[0]) 
   end
   def reverse_arounds(ally,dir=nil)
     return directions.each{|d|reverse_arounds ally,d} unless dir
     return unless placeble?(ally,dir)
-    gather(dir).drop(1).take_while{|p| p.opponent? ally}.each(&:reverse)
+    gather(dir).take_while{|p| p.opponent? ally}.each(&:reverse)
   end
 end
 class Player
