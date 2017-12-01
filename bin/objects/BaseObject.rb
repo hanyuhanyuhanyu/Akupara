@@ -21,12 +21,12 @@ module BaseMethods
     @count - 1
   end
   def alight(place)
-    @where&.leaved if @where&.is_a?(Place)
+    @where&.remove if @where&.is_a?(Place)
     @where = place
     place.placed if place.is_a?(Place)
   end
   def leave
-    @where&.leaved
+    @where&.remove
     @where = nil
   end
   def hold(token)
