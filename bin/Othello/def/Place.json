@@ -1,0 +1,16 @@
+{
+  "default_board":{
+    "type":"square"
+    ,"row":8
+    ,"col":8
+  }
+  ,"atlanta":{
+    "name":"アトランタ"
+    ,"adjs":["sankt_peterburg"]
+  }
+  ,"sankt_peterburg":{
+    "name":"サンクト・ペテルブルク"
+    ,"adjs":["atlanta"]
+  }
+}
+
