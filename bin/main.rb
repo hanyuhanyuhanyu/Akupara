@@ -6,8 +6,6 @@ dir.split("/").<<("").inject do |path,sub|
   require_relative setter if File.exist?(setter)
   path += "/".+(sub)
 end
-require_relative "objects/package.rb"
-require_relative "process/sequence.rb"
 Sequences.run
 
 
