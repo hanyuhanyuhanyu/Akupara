@@ -8,7 +8,8 @@ class Definer
 end
 class PlaceDefiner < Definer
   def initialize(file)
-    placejson = JSON.parse(File.open(file,"r").read)
+    super
+    placejson = JSON.parse(File.open(@file,"r").read)
     ret_places = 
     if setting = placejson["default_board"]  
       DefaultBoard.new(setting["row"],setting["col"],setting)
@@ -25,55 +26,55 @@ class PlaceDefiner < Definer
   end
 end
 class PlayerDefiner < Definer
-  def initialize(file) 
-  end 
 end
 class TokenDefiner < Definer
-end
-TokenDef = "#{ __FILE__.split("/")[0..-2].join("/")}/def/Token.json"
-TokenJson = JSON.parse(File.open(TokenDef,"r").read)
-TokenJson.each_value do |value|
-  next unless value["amount"].is_a?(Hash)
-  while value["amount"].keys.any?{|sub| TokenJson[sub]["subtype"]}
-    value["amount"].keys.each do |sub|
-      next unless TokenJson[sub]["subtype"]
-      [TokenJson[sub]["subtype"]].flatten.each{|grandsub| value["amount"][grandsub] ||= value["amount"][sub]}
-      value["amount"].delete sub
-    end
-  end
-end
-TokenJson.each_value do |value|
-  next unless value["subtype"]
-  value["subtype"] = [value["subtype"]].flatten
-  value["subtype"].map!{|sub| TokenJson[sub]["subtype"] || sub}.flatten! while value["subtype"].any?{|sub| TokenJson[sub]["subtype"]}
-  value["subtype"] = value["subtype"][0] if value["subtype"].length == 1
-end
-TokenJson.each_pair do |key , value|
-  eval <<-EOS
-    class #{key.capitalize} < Token
-      prepend BaseInitialize
-      @@subtype = #{value['subtype'] || []}
-      @@amount = #{value['amount'] || 0}
-      def initialize(**opt)
-        super('#{key}',#{value})
-        init(@@amount) if opt[:init]
+  def initialize(file) 
+    super
+    token_json = JSON.parse(File.open(@file,"r").read)
+    token_json.each_value do |value|
+      next unless value["amount"].is_a?(Hash)
+      while value["amount"].keys.any?{|sub| token_json[sub]["subtype"]}
+        value["amount"].keys.each do |sub|
+          next unless token_json[sub]["subtype"]
+          [token_json[sub]["subtype"]].flatten.each{|grandsub| value["amount"][grandsub] ||= value["amount"][sub]}
+          value["amount"].delete sub
+        end
       end
     end
-  EOS
+    token_json.each_value do |value|
+      next unless value["subtype"]
+      value["subtype"] = [value["subtype"]].flatten
+      value["subtype"].map!{|sub| token_json[sub]["subtype"] || sub}.flatten! while value["subtype"].any?{|sub| token_json[sub]["subtype"]}
+      value["subtype"] = value["subtype"][0] if value["subtype"].length == 1
+    end
+    token_json.each_pair do |key , value|
+      eval <<-EOS
+        class #{key.capitalize} < Token
+          prepend BaseInitialize
+          @@subtype = #{value['subtype'] || []}
+          @@amount = #{value['amount'] || 0}
+          def initialize(**opt)
+            super('#{key}',#{value})
+            init(@@amount) if opt[:init]
+          end
+        end
+      EOS
+    end
+    tokens = TokenHolder.new
+    token_json.each_pair do |key , value|
+      eval <<-EOS
+        tokens[:#{key}] = #{key.capitalize}.new(init:true)
+      EOS
+    end
+    tokens
+  end
 end
-TokenJson.each_pair do |key , value|
-  eval <<-EOS
-    Tokens[:#{key}] = #{key.capitalize}.new(init:true)
-  EOS
-end
-Tokens = TokenHolder.new
-S
 module Akupara
   class Game
     def self.set_def_files(**files)
       @@places = PlaceDefiner.new files[:place]
       @@players = PlayerDefiner.new files[:player]
-      @@Tokens = TokenDefiner.new files[:token]
+      @@tokens = TokenDefiner.new files[:token]
     end
   end
 end
