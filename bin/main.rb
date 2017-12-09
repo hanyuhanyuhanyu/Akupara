@@ -11,7 +11,6 @@ dir.split("/").<<("").inject do |path,sub|
   path += "/".+(sub)
 end
 
-Sequences = Sequence.new
-Sequences.run
+Akupara::Game.new.run
 
 
