@@ -46,24 +46,4 @@ class Sequence
   end
 end 
 
-SeqDef = "#{File.expand_path('../../sequence/Sequence.json',__FILE__)}"
-MethodHash = JSON.parse(File.open(SeqDef,"r").read)
-Sequences = Sequence.new(MethodHash)
-MethodHash.each_pair do |key,value|
-  next if value == ""
-  def_move = "puts __method__.to_s+' is called as member of #{key}.'" 
-  joiner = "\n" + (key == 'iterate' ? 'nil until ' : '')
-  redef = "#{joiner} #{value.is_a?(Array) ? value.join(joiner) : value}"
-  eval <<-EOS
-    #{if value.is_a?(Array)
-        "def " + value.join("\n #{def_move} \nend\ndef ") + "\n #{def_move} \nend"
-      else
-        "def #{value}\n  #{def_move} \n end"
-      end
-    }
-    def #{key}
-      #{redef}
-      puts ""
-    end
-  EOS
-end
+
