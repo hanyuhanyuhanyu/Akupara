@@ -50,9 +50,9 @@ def directions
 end
 
 class Place
-  attr_reader :to_sym , :name , :direction 
+  attr_reader :to_sym , :name , :direction , :arounds , :adjs , :diagonals , :placing
   directions.each do |dir|
-    define_method(dir){Places[@direction[dir]]}
+    define_method(dir){@direction[dir]}
   end
   def initialize(key , value)
     @to_sym = key.to_sym
@@ -65,36 +65,24 @@ class Place
     @placing = nil
     directions.each do |dir|
       next unless value[dir]
-      @direction[dir] = value[dir].to_sym 
+      @direction[dir] = value[dir]
       @arounds << value[dir]
     end
   end
-  def arounds
-    @arounds.map{|v| Places[v]}
-  end 
-  def adjs
-    @adjs.map{|v| Places[v]}
-  end 
   def adj?(place)
     @adjs.include?(place)
-  end
-  def diagonals
-    @diagonals.map{|v| Places[v]}
   end
   def add_adj(place)
     @adjs << place unless adj?(place)
   end
   def gather(direction , &block)
     return [] unless @direction[direction]
-    target = Places[@direction[direction]]
+    target = @direction[direction]
     block = ->(_){true} unless block_given?
     (block.call(target) ? [target] : []) + target.gather(direction,&block)
   end
   def method_missing(method,*args,&block)
     Places.send(method,self,*args,&block)
-  end
-  def placing
-    Places[placing]
   end
   def place(arg)
     @placing = arg
