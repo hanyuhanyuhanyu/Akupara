@@ -11,7 +11,7 @@ module Akupara
   end
   class DefaultBoard < PlaceHolder
     @default_dirs = %i|right_down right right_up down up left_down left left_up|
-    def self.directions; @default_dirs;end
+    def self.all_dir; @default_dirs;end
     grid = [1,0,-1]
     @grid_defs = {
       left_up:[grid , grid],
@@ -26,7 +26,7 @@ module Akupara
       origin = setting["origin"]||:left_up
       type = setting["type"]||:square
       @grid_hash = {}
-      directions.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
+      all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
       all_arr = [*0...row].product([*0...col])
       #nil cannot go here instead of 0 cause nil cannot imply that some object will be there.
       all_arr.each{|i| self[?r.+(i.join(?c)).to_sym] = 0}
@@ -46,12 +46,12 @@ module Akupara
       super(r) || super("r#{r}c#{c}".to_sym)
     end
   end
-  def directions
-    DefaultBoard.directions
-  end
   class Place
+    def all_dir
+      DefaultBoard.directions
+    end
     attr_reader :to_sym , :name , :direction , :arounds , :adjs , :diagonals , :placing
-    directions.each do |dir|
+    DefaultBoard.all_dir.each do |dir|
       define_method(dir){@direction[dir]}
     end
     def initialize(key , value)
@@ -63,7 +63,7 @@ module Akupara
       @direction = {}
       @arounds = []
       @placing = nil
-      directions.each do |dir|
+      all_dir.each do |dir|
         next unless value[dir]
         @direction[dir] = value[dir]
         @arounds << value[dir]
