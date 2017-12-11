@@ -26,18 +26,18 @@ module Akupara
       origin = setting["origin"]||:left_up
       type = setting["type"]||:square
       @grid_hash = {}
-      all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
+      DefaultBoard.all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
       all_arr = [*0...row].product([*0...col])
       #nil cannot go here instead of 0 cause nil cannot imply that some object will be there.
-      all_arr.each{|i| self[?r.+(i.join(?c)).to_sym] = 0}
+      all_arr.each{|i| name = ?r.+(i.join(?c)).to_sym;self[name] = Place.new(name,{name:name}}
       all_arr.each do |i| 
         buf_hash ={name:nil,adjs:[],diagonals:[]}
         buf_hash[:name] = ?r.+(i.join(?c))
         @grid_hash.each_pair do |key , item|
           around = ?r.+([i[0]+item[0],i[1]+item[1]].join(?c)).to_sym
           next unless self[around]
-          buf_hash[key.to_s.include?("_") ? :diagonals : :adjs] << around
-          buf_hash[key.to_sym] = around 
+          buf_hash[key.to_s.include?("_") ? :diagonals : :adjs] << self[around]
+          buf_hash[key.to_sym] = self[around] 
         end
         self[buf_hash[:name].to_sym] = Place.new(buf_hash[:name] , buf_hash)
       end
@@ -47,8 +47,9 @@ module Akupara
     end
   end
   class Place
+    inherit_basics
     def all_dir
-      DefaultBoard.directions
+      DefaultBoard.all_dir
     end
     attr_reader :to_sym , :name , :direction , :arounds , :adjs , :diagonals , :placing
     DefaultBoard.all_dir.each do |dir|
@@ -57,8 +58,8 @@ module Akupara
     def initialize(key , value)
       @to_sym = key.to_sym
       @name = value[:name]
-      @adjs = value[:adjs].map(&:to_sym)
-      @diagonals = value[:diagonals].map(&:to_sym)
+      @adjs = value[:adjs]
+      @diagonals = value[:diagonals]
       @hold = {}
       @direction = {}
       @arounds = []
