@@ -1,7 +1,13 @@
 module Akupara
   require 'json'
   class Game 
-    def init
+   def self.set_def_files(**files)
+     @@places = PlaceDefiner.new(files[:place]).define
+     @@players = PlayerDefiner.new(files[:player]).define
+     @@tokens = TokenDefiner.new(files[:token]).define
+     @@sequences = SequenceDefiner.new(files[:sequence]).define
+   end
+   def init
       puts "------Method 'init' called------"
       puts "When you run main.rb, Akupara call the method 'init' first."
       puts "You can redefine this by edit 'sequence.rb' and do same thing to 'iterate', 'close' method, which will be called later."
@@ -25,7 +31,7 @@ module Akupara
   end
   class SequenceDefiner < Definer
     def initialize(file)
-      Json.parse file 
+      JSON.parse file 
     end
   end
   class Sequence
@@ -52,14 +58,6 @@ module Akupara
       end
     end
   end 
-  class Game
-    def self.set_def_files(**files)
-      @@places = PlaceDefiner.new files[:place]
-      @@players = PlayerDefiner.new files[:player]
-      @@tokens = TokenDefiner.new files[:token]
-      @@sequences = SequenceDefiner.new files[:sequence]
-    end
-  end
 end
 SeqDef = "#{File.expand_path('../../sequence/Sequence.json',__FILE__)}"
 MethodHash = JSON.parse(File.open(SeqDef,"r").read)
