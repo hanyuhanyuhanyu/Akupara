@@ -59,8 +59,8 @@ module Akupara
 end
 class Class
   def inherit_basics
-    self.prepend BaseInitialize
-    self.include BaseMethods
+    self.prepend ::Akupara::BaseInitialize
+    self.include ::Akupara::BaseMethods
   end 
 end
 

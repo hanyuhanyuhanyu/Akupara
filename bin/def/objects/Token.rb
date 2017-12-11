@@ -1,6 +1,7 @@
 require 'json'
 module Akupara 
   class Token
+    inherit_basics
     attr_reader :name , :subtype , :amount
     def initialize(key , value = {})
       @to_sym = key.to_sym

@@ -10,7 +10,6 @@ dir.split("/").<<("").inject do |path,sub|
   require_relative setter if File.exist?(setter)
   path += "/".+(sub)
 end
-
 Akupara::Game.new.run
 
 
