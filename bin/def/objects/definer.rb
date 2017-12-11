@@ -7,8 +7,7 @@ class Definer
   end
 end
 class PlaceDefiner < Definer
-  def initialize(file)
-    super
+  def define
     placejson = JSON.parse(File.open(@file,"r").read)
     ret_places = 
     if setting = placejson["default_board"]  
@@ -28,8 +27,7 @@ end
 class PlayerDefiner < Definer
 end
 class TokenDefiner < Definer
-  def initialize(file) 
-    super
+  def define
     token_json = JSON.parse(File.open(@file,"r").read)
     token_json.each_value do |value|
       next unless value["amount"].is_a?(Hash)
@@ -49,8 +47,8 @@ class TokenDefiner < Definer
     end
     token_json.each_pair do |key , value|
       eval <<-EOS
-        class #{key.capitalize} < Token
-          prepend BaseInitialize
+        class ::Akupara::#{key.capitalize} < ::Akupara::Token
+          prepend ::Akupara::BaseInitialize
           @@subtype = #{value['subtype'] || []}
           @@amount = #{value['amount'] || 0}
           def initialize(**opt)
