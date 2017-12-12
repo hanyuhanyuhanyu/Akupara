@@ -29,17 +29,17 @@ module Akupara
       DefaultBoard.all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
       all_arr = [*0...row].product([*0...col])
       #nil cannot go here instead of 0 cause nil cannot imply that some object will be there.
-      all_arr.each{|i| name = ?r.+(i.join(?c)).to_sym;self[name] = Place.new(name,{name:name}}
+      all_arr.each{|i|name=?r.+(i.join(?c)).to_sym; self[name] = Place.new({name},{})
       all_arr.each do |i| 
         buf_hash ={name:nil,adjs:[],diagonals:[]}
         buf_hash[:name] = ?r.+(i.join(?c))
         @grid_hash.each_pair do |key , item|
-          around = ?r.+([i[0]+item[0],i[1]+item[1]].join(?c)).to_sym
-          next unless self[around]
-          buf_hash[key.to_s.include?("_") ? :diagonals : :adjs] << self[around]
-          buf_hash[key.to_sym] = self[around] 
+          around = self[?r.+([i[0]+item[0],i[1]+item[1]].join(?c))]
+          next unless around
+          buf_hash[key.to_s.include?("_") ? :diagonals : :adjs] << around
+          buf_hash[key.to_sym] = around 
         end
-        self[buf_hash[:name].to_sym] = Place.new(buf_hash[:name] , buf_hash)
+        self[buf_hash[:name].to_sym].set_arounds buf_hash
       end
     end
     def [](r,c=nil)
@@ -48,6 +48,17 @@ module Akupara
   end
   class Place
     inherit_basics
+    def set_arounds(**direction_hash)
+      @adjs = direction_hash[:adjs].map(&:to_sym)
+      @diagonals = direction_hash[:diagonals].map(&:to_sym)
+      @direction = {}
+      @arounds = []
+      all_dir.each do |dir|
+        next unless direction_hash[dir]
+        @direction[dir] = direction_hash[dir]
+        @arounds << direction_hash[dir]
+      end
+    end
     def all_dir
       DefaultBoard.all_dir
     end
