@@ -93,9 +93,6 @@ module Akupara
       block = ->(_){true} unless block_given?
       (block.call(target) ? [target] : []) + target.gather(direction,&block)
     end
-    def method_missing(method,*args,&block)
-      Places.send(method,self,*args,&block)
-    end
     def place(arg)
       @placing = arg
     end

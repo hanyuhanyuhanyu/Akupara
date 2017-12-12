@@ -40,7 +40,7 @@ module Akupara
       places.map(&:ally).uniq.length >= 2 && aly.opponent?(places[0]) 
     end
     def reverse_arounds(ally,dir=nil)
-      return directions.each{|d|reverse_arounds ally,d} unless dir
+      return ::Akupara::DefaultBoard.all_dir.each{|d|reverse_arounds ally,d} unless dir
       return unless placeble?(ally,dir)
       gather(dir).take_while{|p| p.opponent? ally}.each(&:reverse)
     end
@@ -89,8 +89,7 @@ module Akupara
       puts "if you ganna place the stone on the grid 'r5c2', type like the example below."
       puts "#example\n52"
       begin
-        p gets
-        input = [?r,?c,""].zip(gets.strip.each_char).join.to_sym
+        input = [?r,?c,""].zip(STDIN.gets.strip.each_char).join.to_sym
       end until (playing[:placeble].include?(input)||puts("you cannot place the stone on #{input}! type again..."))
       @last_placed = @@places[input]
     end
