@@ -46,6 +46,9 @@ module Akupara
         end
       end
     end
+    def playing 
+      @@players.playing
+    end
   end
   class ::Akupara::SequenceDefiner < ::Akupara::Definer
     def define
