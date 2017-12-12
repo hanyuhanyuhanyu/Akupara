@@ -3,7 +3,7 @@ game = ARGV.join("/")
 dir = Dir.glob("./#{game}")[0]
 
 (warn "#{game} not found." ; exit ) if dir.nil?
-require 'JSON'
+require 'json'
 dir.split("/").<<("").inject do |path,sub| 
   setter = "#{path}/setting.rb"
   require_relative setter if File.exist?(setter)
