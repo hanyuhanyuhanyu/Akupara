@@ -20,6 +20,7 @@ module Akupara
       puts "It stands for playing parts which iterate many times."
       puts "The 'iterate' method can have some methods inside. Those methods indicate 'Phases' of the game."
       puts ""
+      :close
     end
 
     def close
@@ -30,6 +31,7 @@ module Akupara
     end
   
     def run(met = nil)
+      @@sequences = Sequence.new
       #when this file is loaded,@@sequences is supposed not to be defined. 
       #so it cannot set as default value directly.
       met ||= @@sequences.methods[0]
@@ -52,6 +54,7 @@ module Akupara
   end
   class ::Akupara::SequenceDefiner < ::Akupara::Definer
     def define
+      return unless @file
       methodhash = JSON.parse(File.open(@file,"r").read)
       ret_sequences = Sequence.new(methodhash)
       methodhash.each_pair do |key,value|
@@ -79,7 +82,7 @@ module Akupara
   end
   class Sequence
     attr_reader :each_divs , :methods
-    def initialize(method_hash)
+    def initialize(method_hash = {"init":"init","iterate":"iterate","close":"close"})
       @methods = method_hash.values.flatten.map(&:to_sym)
       @each_divs = {}
       method_hash.each_pair do |key,value|

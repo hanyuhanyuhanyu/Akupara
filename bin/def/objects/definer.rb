@@ -1,7 +1,7 @@
 module Akupara
   require "json"
   class Definer
-    def initialize(file)
+    def initialize(file = "")
       @file = file
     end
     def define
@@ -9,6 +9,7 @@ module Akupara
   end
   class PlaceDefiner < Definer
     def define
+      return unless @file
       placejson = JSON.parse(File.open(@file,"r").read)
       ret_places = 
       if setting = placejson["default_board"]  
@@ -27,11 +28,13 @@ module Akupara
   end
   class PlayerDefiner < Definer
     def define
+      return unless @file
       PlayerHolder.new
     end
   end
   class TokenDefiner < Definer
     def define
+      return unless @file
       token_json = JSON.parse(File.open(@file,"r").read)
       token_json.each_value do |value|
         next unless value["amount"].is_a?(Hash)
