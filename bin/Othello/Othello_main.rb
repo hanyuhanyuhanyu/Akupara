@@ -40,7 +40,7 @@ module Akupara
       places.map(&:ally).uniq.length >= 2 && aly.opponent?(places[0]) 
     end
     def reverse_arounds(ally,dir=nil)
-      return ::Akupara::DefaultBoard.all_dir.each{|d|reverse_arounds ally,d} unless dir
+      return DefaultBoard.all_dir.each{|d|reverse_arounds ally,d} unless dir
       return unless placeble?(ally,dir)
       gather(dir).take_while{|p| p.opponent? ally}.each(&:reverse)
     end
