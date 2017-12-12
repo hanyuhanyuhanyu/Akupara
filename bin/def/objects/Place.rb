@@ -39,7 +39,7 @@ module Akupara
           buf_hash[key.to_s.include?("_") ? :diagonals : :adjs] << around
           buf_hash[key.to_sym] = around 
         end
-        self[buf_hash[:name].to_sym].reset_arounds buf_hash
+        self[buf_hash[:name].to_sym].set_arounds buf_hash
       end
     end
     def [](r,c=nil)
@@ -47,7 +47,7 @@ module Akupara
     end
   end
   class Place
-    def reset_arounds(**direction_hash)
+    def set_arounds(**direction_hash)
       @adjs = direction_hash[:adjs].map(&:to_sym)
       @diagonals = direction_hash[:diagonals].map(&:to_sym)
       @direction = {}
