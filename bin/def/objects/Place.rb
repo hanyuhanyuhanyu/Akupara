@@ -29,12 +29,12 @@ module Akupara
       DefaultBoard.all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
       all_arr = [*0...row].product([*0...col])
       #nil cannot go here instead of 0 cause nil cannot imply that some object will be there.
-      all_arr.each{|i|name=?r.+(i.join(?c)).to_sym; self[name] = Place.new({name},{})
+      all_arr.each{|i|name=?r.+(i.join(?c)).to_sym; self[name] = Place.new(name,{})}
       all_arr.each do |i| 
         buf_hash ={name:nil,adjs:[],diagonals:[]}
         buf_hash[:name] = ?r.+(i.join(?c))
         @grid_hash.each_pair do |key , item|
-          around = self[?r.+([i[0]+item[0],i[1]+item[1]].join(?c))]
+          around = self[(?r.+([i[0]+item[0],i[1]+item[1]].join(?c))).to_sym]
           next unless around
           buf_hash[key.to_s.include?("_") ? :diagonals : :adjs] << around
           buf_hash[key.to_sym] = around 
