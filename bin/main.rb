@@ -1,5 +1,4 @@
 (warn "No ARGV Exception."; exit)if ARGV.empty?
-
 game = ARGV.join("/")
 dir = Dir.glob("./#{game}")[0]
 
