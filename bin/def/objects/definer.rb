@@ -29,7 +29,6 @@ module Akupara
   class PlayerDefiner < Definer
     def define
       return PlayerHolder.new unless @file
-      PlayerHolder.new
     end
   end
   class TokenDefiner < Definer
