@@ -14,4 +14,16 @@ module Akupara
       (block.call(target) ? [target] : []) + target.gather(direction,&block)
     end
   end
+  class Game
+    def show_the_board
+      rows = ["   "] * 2
+      0.upto(7){|n| rows[0] += "c ";rows[1] += "#{n} "}
+      rows = [rows.join("\n")+("\n")]
+      0.upto(7) do |row|
+        rows << "r#{row}|" + [*0...8].map{|col| p @@places["r#{row}c#{col}".to_sym]&.to_sym;@@places["r#{row}c#{col}".to_sym]}.map{|item| item.nil? ? "X" : item.show}.join("|") + ("|\n")
+      end
+      row_line = "  " + "-"*(8*2+1) + "\n"
+      puts rows.join(row_line) + row_line
+    end
+  end
 end

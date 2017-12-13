@@ -28,7 +28,6 @@ module Akupara
       @grid_hash = {}
       DefaultBoard.all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
       all_arr = [*0...row].product([*0...col])
-      #nil cannot go here instead of 0 cause nil cannot imply that some object will be there.
       all_arr.each{|i|name=?r.+(i.join(?c)).to_sym; self[name] = Place.new(name,{}) unless setting["drop"]&.include?(name.to_s)}
       all_arr.each do |i| 
         buf_hash ={name:nil,adjs:[],diagonals:[]}

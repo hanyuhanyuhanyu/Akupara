@@ -1,10 +1,10 @@
 module Akupara
   class Game 
     def self.set_definition(**files)
-      @@places = PlaceDefiner.new(files[:place]).define
-      @@players = PlayerDefiner.new(files[:player]).define
-      @@tokens = TokenDefiner.new(files[:token]).define
-      @@sequences = SequenceDefiner.new(files[:sequence]).define
+      @@places = PlaceDefiner.new(files[:place]).define if files[:place]
+      @@players = PlayerDefiner.new(files[:player]).define if files[:player]
+      @@tokens = TokenDefiner.new(files[:token]).define if files[:token]
+      @@sequences = SequenceDefiner.new(files[:sequence]).define if files[:sequence]
     end
     def init
       puts "------Method 'init' called------"

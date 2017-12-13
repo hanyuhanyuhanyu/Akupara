@@ -71,8 +71,8 @@ module Akupara
       %i|white black|.each{|col| @@players.add_player(col);@@players.values[-1].ally_of(col)}
     end
     def set_token
-      %i|r3c3 r4c4|.each{|p|@@places[p].place Stone.new(:white)}
-      %i|r3c4 r4c3|.each{|p|@@places[p].place Stone.new(:black)}
+      %i|r3c3 r4c4|.each{|p|@@places[p]&.place Stone.new(:white)}
+      %i|r3c4 r4c3|.each{|p|@@places[p]&.place Stone.new(:black)}
     end
 
     def require_input
@@ -125,7 +125,7 @@ module Akupara
       0.upto(7){|n| rows[0] += "c ";rows[1] += "#{n} "}
       rows = [rows.join("\n")+("\n")]
       0.upto(7) do |num|
-        rows << "r#{num}|" + @@places.values[num*8...(num+1)*8].map(&:show).join("|") + "|\n"
+        rows << "r#{num}|" + @@places.values[num*8...(num+1)*8]&.map(&:show)&.join("|")&.+("|\n")
       end
       row_line = "  " + "-"*(8*2+1) + "\n"
       puts rows.join(row_line) + row_line
