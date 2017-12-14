@@ -80,7 +80,7 @@ module Akupara
       show_the_board
       return :close if @@players.values.lazy.map{|v|v[:placeble]}.all?(&:empty?)
       if playing[:placeble].empty?
-        print "#{playing.show} cannot place a stone anywhere! skip the turn...";gets
+        print "#{playing.show} cannot place a stone anywhere! skip the turn...";STDIN.gets
         return :rotate 
       end
       puts "[#{playing.show} turn]"
