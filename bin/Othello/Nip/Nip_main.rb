@@ -11,10 +11,7 @@ module Akupara
         target = next_dir.map{|d| @direction[d]}.reject(&:nil?).first
         return [] unless target  
         direction = next_dir.select{|d| @direction[d]}.first
-        unless block_given?
-          puts ["def_block",self.to_sym]
-          block = ->(target){target.to_sym != self.to_sym.clone}
-        end
+        block = ->(target){target.to_sym != self.to_sym.clone} unless block_given?
       end
       (!block_given? || block.call(target) ? [target] : []) + target.gather(direction,&block)
     end
