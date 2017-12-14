@@ -1,10 +1,18 @@
 module Akupara
   class Game 
     def self.set_definition(**files)
-      @@places = PlaceDefiner.new(files[:place]).define if files[:place]
-      @@players = PlayerDefiner.new(files[:player]).define if files[:player]
-      @@tokens = TokenDefiner.new(files[:token]).define if files[:token]
-      @@sequences = SequenceDefiner.new(files[:sequence]).define if files[:sequence]
+      @placefile ||= {} 
+      @playerfile ||= {} 
+      @tokenfile ||= {}
+      @sequencefile ||= {} 
+      @placefile.merge!(JSON.parse(File.open(files[:place],"r").read)) if files[:place]
+      @playerfile.merge!(JSON.parse(File.open(files[:player],"r").read)) if files[:player] 
+      @tokenfile.merge!(JSON.parse(File.open(files[:place],"r").read)) if files[:place] 
+      @sequencefile.merge!(JSON.parse(File.open(files[:sequence],"r").read)) if files[:sequence] 
+      @@places = PlaceDefiner.new(@placefile).define
+      @@players = PlayerDefiner.new(@playerfile).define
+      @@tokens = TokenDefiner.new(@tokenfile).define
+      @@sequences = SequenceDefiner.new(@sequencefile).define if files[:sequence] 
     end
     def init
       puts "------Method 'init' called------"
@@ -52,10 +60,9 @@ module Akupara
   end
   class ::Akupara::SequenceDefiner < ::Akupara::Definer
     def define
-      return Sequence.new unless @file
-      methodhash = JSON.parse(File.open(@file,"r").read)
-      ret_sequences = Sequence.new(methodhash)
-      methodhash.each_pair do |key,value|
+      return Sequence.new unless @json
+      ret_sequences = Sequence.new(@json)
+      @json.each_pair do |key,value|
         next if value == ""
         def_move = "puts __method__.to_s+' is called as member of #{key}.'" 
         joiner = "\n" + (key == 'iterate' ? 'nil until ' : '')

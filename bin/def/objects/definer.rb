@@ -1,21 +1,20 @@
 module Akupara
   require "json"
   class Definer
-    def initialize(file = "")
-      @file = file
+    def initialize(json = {})
+      @json = json
     end
     def define
     end
   end
   class PlaceDefiner < Definer
     def define
-      return PlaceHolder.new unless @file
-      placejson = JSON.parse(File.open(@file,"r").read)
-      ret_places = 
-      if setting = placejson["default_board"]  
-        ::Akupara::DefaultBoard.new(setting["row"],setting["col"],setting)
+      return PlaceHolder.new unless @json
+      ret_places = PlaceHolder.new
+      if setting = @json["default_board"]  
+        ret_places = DefaultBoard.new(setting["row"],setting["col"],setting)
       else
-        placejson.each_pair do |key,value|
+        @json.each_pair do |key,value|
           eval <<-EOS
             #{key.capitalize} = Place.new('#{key}',#{value})
             ret_places[:#{key.to_sym}] = #{key.capitalize}
@@ -28,30 +27,30 @@ module Akupara
   end
   class PlayerDefiner < Definer
     def define
-      return PlayerHolder.new unless @file
+      return PlayerHolder.new unless @json
+      PlayerHolder.new
     end
   end
   class TokenDefiner < Definer
     def define
-      return TokenHolder.new unless @file
-      token_json = JSON.parse(File.open(@file,"r").read)
-      token_json.each_value do |value|
+      return TokenHolder.new unless 
+      @json.each_value do |value|
         next unless value["amount"].is_a?(Hash)
-        while value["amount"].keys.any?{|sub| token_json[sub]["subtype"]}
+        while value["amount"].keys.any?{|sub| @json[sub]["subtype"]}
           value["amount"].keys.each do |sub|
-            next unless token_json[sub]["subtype"]
-            [token_json[sub]["subtype"]].flatten.each{|grandsub| value["amount"][grandsub] ||= value["amount"][sub]}
+            next unless @json[sub]["subtype"]
+            [@json[sub]["subtype"]].flatten.each{|grandsub| value["amount"][grandsub] ||= value["amount"][sub]}
             value["amount"].delete sub
           end
         end
       end
-      token_json.each_value do |value|
+      @json.each_value do |value|
         next unless value["subtype"]
         value["subtype"] = [value["subtype"]].flatten
-        value["subtype"].map!{|sub| token_json[sub]["subtype"] || sub}.flatten! while value["subtype"].any?{|sub| token_json[sub]["subtype"]}
+        value["subtype"].map!{|sub| @json[sub]["subtype"] || sub}.flatten! while value["subtype"].any?{|sub| @json[sub]["subtype"]}
         value["subtype"] = value["subtype"][0] if value["subtype"].length == 1
       end
-      token_json.each_pair do |key , value|
+      @json.each_pair do |key , value|
         eval <<-EOS
           class ::Akupara::#{key.capitalize} < ::Akupara::Token
             prepend ::Akupara::BaseInitialize
@@ -65,7 +64,7 @@ module Akupara
         EOS
       end
       tokens = TokenHolder.new
-      token_json.each_pair do |key , value|
+      @json.each_pair do |key , value|
         eval <<-EOS
           tokens[:#{key}] = #{key.capitalize}.new(init:true)
         EOS
