@@ -4,16 +4,16 @@ module Akupara
       if @direction[direction]
         target = @direction[direction]
       else
-        return [] if block_given? && !block.call(self) 
-        return [] if @direction.values.count != 4
+        return [] if block_given? && block.call(self) 
+        return [] if @direction.values.reject(&:nil?).count != 4
         next_dir = direction.to_s.include?("_") ? direction.to_s.split("_").map(&:to_sym) : nil
         next_dir ||= [:up,:down].include?(direction) ? ["right_","left_"].map{|d| d.+(direction.to_s).to_sym} : ["_up","_down"].map{|d| direction.to_s.+(d).to_sym}
         target = next_dir.map{|d| @direction[d]}.reject(&:nil?).first
         return [] unless target  
         direction = next_dir.select{|d| @direction[d]}.first
-        block = ->(target){target.to_sym != self.to_sym.clone} unless block_given?
+        block = ->(target){target.equal?(self)} unless block_given?
       end
-      (!block_given? || block.call(target) ? [target] : []) + target.gather(direction,&block)
+      [target] + target.gather(direction,&block)
     end
   end
   class Game
