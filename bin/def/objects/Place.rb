@@ -1,5 +1,6 @@
 require 'json'
 module Akupara
+
   class PlaceHolder < Hash
      def reconnect
       self.each_pair do |key , place|
@@ -10,8 +11,9 @@ module Akupara
     end
   end
   class DefaultBoard < PlaceHolder
-    @default_dirs = %i|right_down right right_up down up left_down left left_up|
+    @default_dirs = Direction.dir_def
     def self.all_dir; @default_dirs;end
+    def self.set_dirs(dirs); @default_dirs = dirs;end
     grid = [1,0,-1]
     @grid_defs = {
       left_up:[grid , grid],
@@ -22,6 +24,8 @@ module Akupara
     @grid_defs.each_pair{|key , val| @grid_defs[key] = val[0].product(val[1]).reject{|item| item.all?(&:zero?)}.map{|item| item.reverse}}
     def self.grid_defs;@grid_defs;end
     def initialize(row , col , setting)
+      selected_dirs = Direction.new(setting[:type]||:square)
+      DefaultBoard.set_dirs(selected_dirs.dirs)
       @row = row; @col = col
       origin = setting["origin"]||:left_up
       type = setting["type"]||:square

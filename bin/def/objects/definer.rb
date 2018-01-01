@@ -33,7 +33,7 @@ module Akupara
   end
   class TokenDefiner < Definer
     def define
-      return TokenHolder.new unless 
+      return TokenHolder.new unless @json
       @json.each_value do |value|
         next unless value["amount"].is_a?(Hash)
         while value["amount"].keys.any?{|sub| @json[sub]["subtype"]}
@@ -56,6 +56,9 @@ module Akupara
             prepend ::Akupara::BaseInitialize
             @@subtype = #{value['subtype'] || []}
             @@amount = #{value['amount'] || 0}
+            @@movable = []
+            @@movable = Moveables.new(#{value['movable']}) if #{value['movable']}
+            p @@movable
             def initialize(**opt)
               super('#{key}',#{value})
               init(@@amount) if opt[:init]

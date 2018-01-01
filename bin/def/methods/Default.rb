@@ -7,7 +7,7 @@ module Akupara
       @sequencefile ||= {} 
       @placefile.merge!(JSON.parse(File.open(files[:place],"r").read)) if files[:place]
       @playerfile.merge!(JSON.parse(File.open(files[:player],"r").read)) if files[:player] 
-      @tokenfile.merge!(JSON.parse(File.open(files[:place],"r").read)) if files[:place] 
+      @tokenfile.merge!(JSON.parse(File.open(files[:token],"r").read)) if files[:token] 
       @sequencefile.merge!(JSON.parse(File.open(files[:sequence],"r").read)) if files[:sequence] 
       @@places = PlaceDefiner.new(@placefile).define
       @@players = PlayerDefiner.new(@playerfile).define

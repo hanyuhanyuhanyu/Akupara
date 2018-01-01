@@ -63,5 +63,5 @@ class Class
     self.include ::Akupara::BaseMethods
   end 
 end
-
-
+require File.expand_path("../Direction.rb",__FILE__)
+require File.expand_path("../Movement.rb",__FILE__)

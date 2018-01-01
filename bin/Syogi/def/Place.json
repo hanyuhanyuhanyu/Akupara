@@ -1,0 +1,8 @@
+{
+  "default_board":{
+    "type":"square"
+    ,"row":9
+    ,"col":9
+  }
+}
+
