@@ -4,12 +4,18 @@ module Akupara
       2.times do @players.add_player end
     end
     def set_token
-      pawns = []
-      9.times{pawns << Fu.new}
-      2.times{pawns << [Kin.new,Gin.new,Keima.new,Kyosha.new]}
-      pawns << [Hisha.new,Kaku.new,Ou.new]
-      pawns.flatten!
-    p @players.values.map(&:name)
+      top = []; top << Fu
+      middle = Array.new(9); middle[1] = Kaku;middle[7] = Hisha
+      bottom_parts = [Kin,Gin,Keima,Kyosha]
+      bottom = bottom_parts.reverse + [Ou] + bottom_parts
+      9.times do |col|
+        top[col].new.alight @places[6,col]
+        middle[col].new.alight @places[7,col]
+        bottom[col].new.alight @places[8,col] 
+        top[col].new.alight @places[2,8-col]
+        middle[col].new.alight @places[7,8-col]
+        bottom[col].new.alight @places[8,8-col] 
+      end
     end
 
     def require_input
@@ -26,5 +32,4 @@ module Akupara
     end
   end
 end
-
 
