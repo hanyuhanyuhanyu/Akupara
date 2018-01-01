@@ -14,6 +14,13 @@ module Akupara
       @@tokens = TokenDefiner.new(@tokenfile).define
       @@sequences = SequenceDefiner.new(@sequencefile).define if files[:sequence] 
     end
+
+    def initialize
+      @places = @@places.clone
+      @players = @@players.clone
+      @tokens = @@tokens.clone
+    end
+
     def init
       puts "------Method 'init' called------"
       puts "When you run main.rb, Akupara call the method 'init' first."
@@ -55,7 +62,7 @@ module Akupara
       end
     end
     def playing 
-      @@players.playing
+      @players.playing
     end
   end
   class ::Akupara::SequenceDefiner < ::Akupara::Definer

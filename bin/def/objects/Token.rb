@@ -8,6 +8,7 @@ module Akupara
       @name = value["name"]
       @num = 1
       @ally = nil
+      @dir = Direction.new
     end
     def init(amo = nil)
       case amo
@@ -25,6 +26,21 @@ module Akupara
     def reduce(num = 1)
       @num -= num
       nil if @num <= 0
+    end
+    def clockwise(times = 1) 
+      @dir.clockwise(times) 
+    end
+    def movable?(place) 
+      return true unless @movables    
+      return @movables.each{|movable|
+        search = @where.clone 
+        result = movable.each{|direction|
+          break false unless search.send(direction)
+          break true if search.send(direction) == place
+          search = search.send(direction)
+        }
+        break result.eql? true
+      }
     end
   end
 

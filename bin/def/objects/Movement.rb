@@ -29,5 +29,8 @@ module Akupara
         Movement.new(value)
       end
     end
+    def each
+      @movables.each
+    end
   end
 end

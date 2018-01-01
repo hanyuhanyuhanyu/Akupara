@@ -55,6 +55,9 @@ module Akupara
       return false if self.ally.nil? || arg.ally.nil?
       !ally?(arg)
     end  
+    def name
+      to_sym
+    end
   end
 end
 class Class
