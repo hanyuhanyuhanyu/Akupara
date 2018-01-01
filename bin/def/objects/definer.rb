@@ -53,10 +53,12 @@ module Akupara
       @json.each_pair do |key , value|
         eval <<-EOS
           class ::Akupara::#{key.capitalize} < ::Akupara::Token
+            def self.movable
+              Moveables.new(#{value['movable']}) if #{value['movable'] ? value['movable'] : 'nil'}
+            end
             prepend ::Akupara::BaseInitialize
             @@subtype = #{value['subtype'] || []}
             @@amount = #{value['amount'] || 0}
-            @@movable = Moveables.new(#{value['movable']}) if #{value['movable'] ? value['movable'] : 'nil'}
             def initialize(**opt)
               super('#{key}',#{value})
               init(@@amount) if opt[:init]

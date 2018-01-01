@@ -1,6 +1,9 @@
 require 'json'
 module Akupara 
   class Token
+    def self.movable
+      nil
+    end
     inherit_basics
     attr_reader :name , :subtype , :amount
     def initialize(key , value = {})
@@ -9,6 +12,7 @@ module Akupara
       @num = 1
       @ally = nil
       @dir = Direction.new
+      @movable = self.class.movable
     end
     def init(amo = nil)
       case amo
@@ -31,16 +35,20 @@ module Akupara
       @dir.clockwise(times) 
     end
     def movable?(place) 
-      return true unless @movables    
-      return @movables.each{|movable|
-        search = @where.clone 
-        result = movable.each{|direction|
-          break false unless search.send(direction)
-          break true if search.send(direction) == place
-          search = search.send(direction)
-        }
-        break result.eql? true
-      }
+      return true unless @movable
+      @movable.movable?(@where,place,@dir)
+    end
+    def list_movables
+      return [] unless @movable
+      @movable.list_movables(@where,@dir)
+    end
+    def list_reachables
+      return [] unless @movable
+      @movable.list_reachables(@where,@dir)
+    end
+    def list_stayables
+      return [] unless @movable
+      @movable.list_stayables(@where,@dir)
     end
   end
 

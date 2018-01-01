@@ -17,11 +17,14 @@ module Akupara
     grid = [1,0,-1]
     @grid_defs = {
       left_up:[grid , grid],
-      right_up:[grid.reverse , grid],
-      left_down:[grid , grid.reverse],
+      right_up:[grid.reverse, grid],
+      left_down:[grid, grid.reverse],
       right_down:[grid.reverse , grid.reverse]
     }
-    @grid_defs.each_pair{|key , val| @grid_defs[key] = val[0].product(val[1]).reject{|item| item.all?(&:zero?)}.map{|item| item.reverse}}
+    @grid_defs.each_pair{|key , val|
+      @grid_defs[key] = val[0].product(val[1]).reject{|item| item.all?(&:zero?)}.map(&:reverse)
+      @grid_defs[key] = [@grid_defs[key][3]] + @grid_defs[key][5..7] + [@grid_defs[key][4]] + @grid_defs[key][0..2].reverse
+    }
     def self.grid_defs;@grid_defs;end
     def initialize(row , col , setting)
       selected_dirs = Direction.new(setting[:type]||:square)
@@ -30,7 +33,7 @@ module Akupara
       origin = setting["origin"]||:left_up
       type = setting["type"]||:square
       @grid_hash = {}
-      DefaultBoard.all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][ind]}
+      DefaultBoard.all_dir.each_with_index{|dir , ind| @grid_hash[dir] = DefaultBoard.grid_defs[origin][(ind)%DefaultBoard.all_dir.length]}
       all_arr = [*0...row].product([*0...col])
       all_arr.each{|i|name=?r.+(i.join(?c)).to_sym; self[name] = Place.new(name,{}) unless setting["drop"]&.include?(name.to_s)}
       all_arr.each do |i| 
@@ -104,6 +107,12 @@ module Akupara
     end
     def placed?
       !!@placing
+    end
+    def row
+      self.to_sym[/(?<=r)\d+?/] || nil
+    end
+    def col
+      self.to_sym[/(?<=c)\d+?/] || nil
     end
   end
 end
