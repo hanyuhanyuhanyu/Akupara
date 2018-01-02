@@ -26,7 +26,8 @@ module Akupara
       return self if reversed?
       ret = Narikin.new
       ret.origin(self.class)
-      return Narikin.new
+      ret.ally_of(self.ally)
+      ret
     end
     def reversed?
       false
@@ -39,17 +40,23 @@ module Akupara
   end
   class Hisha
     def reverse
-      return Ryuou.new
+      ret = Ryuou.new
+      ret.ally_of(self.ally)
+      return ret
     end
   end
   class Kaku
     def reverse
-      return Ryoma.new
+      ret = Ryoma.new
+      ret.ally_of(self.ally)
+      return ret
     end
   end
   class Ryuou
     def reverse
-      return Hisha.new
+      ret = Hisha.new
+      ret.ally_of(self.ally)
+      return ret
     end
     def reversed?
       true
@@ -57,7 +64,9 @@ module Akupara
   end
   class Ryoma
     def reverse
-      return Kaku.new
+      ret = Kaku.new
+      ret.ally_of(self.ally)
+      return ret
     end
     def reversed?
       true
@@ -68,7 +77,9 @@ module Akupara
       @origin = pawn
     end
     def reverse
-      return @origin&.new || Fu.new
+      ret = @origin&.new || Fu.new
+      ret.ally_of(self.ally)
+      return ret
     end
     def reversed?
       true
@@ -119,7 +130,10 @@ module Akupara
     end
 
     def show
-      strs = @places.values.map{|plc| plc.placed? ? plc.placing.name : "  "}
+      strs = @places.values.map{|plc|
+        color = plc.placing&.ally?(@players.values.first) ? "\e[31m" : "\e[0m"
+        "#{color}#{plc.placed? ? plc.placing.name : "  "}\e[0m"
+      }
       puts "-"*(2*9+8+2)
       9.times{|raw|
         puts "|" + strs[raw*9...raw*9+9].join("|") + "|"
@@ -264,7 +278,8 @@ module Akupara
       playing.release @pawn.to_sym
       playing.my_pawns @pawn
       @placing = place
-      return :move
+      move
+      return :checkmated?
     end
   end
 end
