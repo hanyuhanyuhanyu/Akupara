@@ -50,6 +50,10 @@ module Akupara
       return [] unless @movable
       @movable.list_stayables(@where,@dir)
     end
+    def route(place)
+      return [] unless @movable
+      @movable.route(@where,place,@dir)
+    end
   end
 
   class TokenHolder < Hash

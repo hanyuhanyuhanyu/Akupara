@@ -34,38 +34,49 @@ module Akupara
       block = ->(*_){false} unless block_given?
       list_movables(start,dir,&block).include? goal
     end
-    def list_movables(place,dir,&block)
+    def apply_moves(moves,start,dir,&block)
+      return case moves
+      when Enumerator
+        apply_enumerator(start,moves.lazy.map{|m| dir.send m},&block)
+      when Array  
+        apply_all_move(start,moves.map{|m| dir.send m})
+      end
+    end
+    def route(start,goal,dir)
+      @movables.map{|moves|
+        way = apply_moves(moves,start,dir)
+        way.include?(goal) ? way.take_while{|p| p != goal} : []
+      }.reject(&:empty?)
+    end
+    def list_movables(start,dir,&block)
       block = ->(*_){false} unless block_given?
       @movables.map{|moves|
-        case moves
-        when Enumerator
-          search = place
-          [].tap{|c|
-            moves.each{|m|
-              m = dir.send(m)
-              break unless search.send(m)
-              search = search.send(m)
-              break if block.call(search)
-              c << search
-            }
-            break c
-          }
-        when Array  
-          apply_all_move(place,moves.map{|m| dir.send m},&block)
-        end
-      }.flatten
+        apply_moves(moves,start,dir,&block)
+      }.flatten.reject(&:nil?)
     end
-    def apply_all_move(place,arr,&block)
-      block = ->(*_){false} unless block_given?
-      return nil unless place.send arr.first
-      return place.send(arr.first) if arr.length <= 1 || block.call(place)
-      apply_all_move(place.send(arr.first),arr.drop(1),&block)
+    def apply_enumerator(place,enum,&block)
+      search = place
+      return [].tap{|c|
+        enum.each{|m|
+          search = search.send(m)
+          break if block_given? && block.call(search)
+          break unless search
+          c << search
+        }
+        break c
+      }
+    end
+    def apply_all_move(place,arr)
+      return nil unless place || arr.length < 1
+      return place.send(arr.first) if arr.length == 1
+      apply_all_move(place.send(arr.first),arr.drop(1))
     end
     def list_reachables(start,dir)
       flag = false 
       list_movables(start,dir){|p|
+        flag = false unless p
         buf = flag
-        flag = !!p.placing
+        flag = !!p&.placing && !flag
         buf
       }
     end
@@ -78,4 +89,4 @@ module Akupara
       }
     end
   end
-end
+ end

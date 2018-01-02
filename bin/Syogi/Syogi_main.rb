@@ -10,6 +10,12 @@ module Akupara
       @pawns ||= []
       @pawns << pawn
     end
+    def pawns
+      @pawns
+    end
+    def hold_pawns
+      @hold
+    end
   end
   class Token
     def reverse
@@ -153,8 +159,32 @@ module Akupara
     end
     def checkmated?
       #ou no basyo to ou no mawari no doreka ni daremo toutatu dekinai nara sippai
-      @players.values.map(&:king).each{|king|
-        p ([king.where] + DefaultBoard.all_dir.map{|dir| king.where.send dir}).reject(&:nil?).map(&:to_sym)
+      all_reachable = {}
+      must_reachable = {}
+      @players.each_pair{|key,val|
+        all_reachable[key] = val.pawns.map{|p| p.list_reachables.map(&:to_sym)}.flatten.uniq.sort
+        must_reachable[key] = ([val.king.where] + DefaultBoard.all_dir.map{|dir| val.king.where.send dir}).reject(&:nil?).map(&:to_sym)
+      }
+      checkable = all_reachable.values.map.with_index{|val,ind|
+        must_reachable.values[ind-1].all?{|p| val.include? p}
+      }
+      checkable.map.with_index{|val,ind|
+        next false unless val
+        me,opp = *@players.values[ind..(ind+1)%(@players.values.length)]
+        killables = me.pawns.select{|p| p.list_reachables.include? opp.king.where}
+      #ou no masu ni toutatu kanou na koma ga hutatu izyou nara tumi
+        next true if killables.size > 1
+        next false if killables.size < 1
+      #sou de nai nara, oute wo kaketeiru koma wo koroseru nara tunde nai
+        killing = killables.first
+        followers = opp.pawns.reject{|p| p === Ou}
+        next false unless followers.select{|p| p.list_reachables.include? killing.where}.empty?
+      #oute wo kaketeru koma ga rinsetu siteiru koma nara tumi 
+        next true if ([opp.king.where] + DefaultBoard.all_dir.map{|dir| opp.king.where.send dir}).include?(killing.where)
+      #tegoma ga areba tunde nai 
+        next false if opp.hold_pawns.length > 0 
+      #oute wo kaketeru koma no keiro no dokonimo toutatu dekinai nara tumi 
+        next  followers.select{|p| killing.route(opp.king.where).any?{|r| p.list_reachables.include? r}}.empty?
       }
     end
 
