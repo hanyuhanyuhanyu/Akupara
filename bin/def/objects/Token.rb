@@ -5,7 +5,7 @@ module Akupara
       nil
     end
     inherit_basics
-    attr_reader :name , :subtype , :amount
+    attr_reader :name , :subtype , :amount ,:num
     def initialize(key , value = {})
       @to_sym = key.to_sym
       @name = value["name"]
@@ -29,7 +29,7 @@ module Akupara
     end
     def reduce(num = 1)
       @num -= num
-      nil if @num <= 0
+      @num <= 0 ? nil : self
     end
     def clockwise(times = 1) 
       @dir.clockwise(times) 

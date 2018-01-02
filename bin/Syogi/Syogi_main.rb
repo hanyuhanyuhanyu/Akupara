@@ -9,6 +9,10 @@ module Akupara
     def my_pawns(pawn)
       @pawns ||= []
       @pawns << pawn
+      pawn.ally_of(self.to_sym)
+    end
+    def fire_pawn(pawn)
+      @pawns.reject{|p| p.eql? pawn}
     end
     def pawns
       @pawns
@@ -121,12 +125,18 @@ module Akupara
         puts "|" + strs[raw*9...raw*9+9].join("|") + "|"
         puts "-"*(2*9+8+2)
       }
+      @players.values.each{|val|
+        print "#{val.to_sym.to_s}'s hand:"
+        puts val.hold_pawns.map{|key,val| "#{val.name} => #{val.num}"}.join(",")
+      }
     end
     def require_input
-      input = STDIN.gets
+      @pawn = nil
+      @placing = nil
+      input = STDIN.gets.chomp
       case input
       when "hand"
-        hand
+        return hand
       else 
         place = @places[input[0].to_i,input[1].to_i]
         if !place || !place.placing&.ally?(playing)
@@ -138,9 +148,14 @@ module Akupara
       end
     end
     def move
-      unless @placing.placing.nil?
-        playing.hold @placing.placing
-        @placing.placing.leave
+      pawn = @placing.placing
+      unless pawn.nil?
+        take = pawn.reversed? ? pawn.reverse : pawn
+        @players.next
+        playing.fire_pawn pawn
+        @players.next
+        playing.hold take
+        pawn.leave
       end
       @pawn.alight @placing
     end
@@ -149,6 +164,7 @@ module Akupara
       puts "promote the pawn? (y/n)"
       input = ""
       until input.match(/[ynYN]/)
+        input = STDIN.gets
         case input
         when /[yY]/
           @pawn.leave
@@ -168,39 +184,65 @@ module Akupara
       checkable = all_reachable.values.map.with_index{|val,ind|
         must_reachable.values[ind-1].all?{|p| val.include? p}
       }
-      checkable.map.with_index{|val,ind|
-        next false unless val
+      checked = checkable.map.with_index{|val,ind|
+        next nil unless val
         me,opp = *@players.values[ind..(ind+1)%(@players.values.length)]
         killables = me.pawns.select{|p| p.list_reachables.include? opp.king.where}
       #ou no masu ni toutatu kanou na koma ga hutatu izyou nara tumi
-        next true if killables.size > 1
-        next false if killables.size < 1
+        next opp if killables.size > 1
+        next nil if killables.size < 1
       #sou de nai nara, oute wo kaketeiru koma wo koroseru nara tunde nai
         killing = killables.first
         followers = opp.pawns.reject{|p| p === Ou}
-        next false unless followers.select{|p| p.list_reachables.include? killing.where}.empty?
+        next nil unless followers.select{|p| p.list_reachables.include? killing.where}.empty?
       #oute wo kaketeru koma ga rinsetu siteiru koma nara tumi 
-        next true if ([opp.king.where] + DefaultBoard.all_dir.map{|dir| opp.king.where.send dir}).include?(killing.where)
+        next opp if ([opp.king.where] + DefaultBoard.all_dir.map{|dir| opp.king.where.send dir}).include?(killing.where)
       #tegoma ga areba tunde nai 
-        next false if opp.hold_pawns.length > 0 
+        next nil if opp.hold_pawns.length > 0 
       #oute wo kaketeru koma no keiro no dokonimo toutatu dekinai nara tumi 
-        next  followers.select{|p| killing.route(opp.king.where).any?{|r| p.list_reachables.include? r}}.empty?
-      }
+        next opp if followers.select{|p| killing.route(opp.king.where).any?{|r| p.list_reachables.include? r}}.empty?
+        nil
+      }.reject(&:nil?)
+      unless checked.empty?
+        @checked = checked.first
+        return :praise_winner
+      end
+      @players.next
     end
 
     def praise_winner
+      @checked
     end
 
     def hand
+      holding = playing.hold_pawns.values
+      if holding.empty?
+        puts "you have no pawns in your hand!"
+        return :show
+      end
+      holding.each_with_index{|val,ind|
+        puts "[#{ind}]#{val.name} (having #{val.num})"
+      }
+      puts "which one?"
+      input = STDIN.gets.to_i
+      case input
+      when 0...holding.length
+        puts "where?"
+        @pawn = holding[input].class.new
+        return try_place 
+      else
+        puts "invalid input!"
+        return hand
+      end
     end
     def try_move
-      input = STDIN.gets
+      input = STDIN.gets.chomp
       case input
       when "quit"
         return :show
       else
         place = @places[input[0].to_i,input[1].to_i]
-        if !place || place.placing
+        if !place || place.placing&.ally?(playing)
           puts "you cannot place the pawn on that place!"
           return :show
         end
@@ -212,7 +254,18 @@ module Akupara
         return :move
       end
     end
-
+    def try_place
+      input = STDIN.gets.chomp
+      place = @places[input[0].to_i,input[1].to_i]
+      if !place || place.placing
+        puts "you cannot place your pawn on that place from your hand!"
+        return :show
+      end
+      playing.release @pawn.to_sym
+      playing.my_pawns @pawn
+      @placing = place
+      return :move
+    end
   end
 end
 

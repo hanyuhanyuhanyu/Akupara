@@ -39,7 +39,9 @@ module Akupara
     end
     def release(token)
       return unless @hold[token.to_sym]
-      @hold[token.to_sym] = token.is_a?(Token) ? @hold[token.to_sym].reduce : nil 
+      target = @hold[token.to_sym]
+      @hold[token.to_sym] = target.is_a?(Token) ? target.reduce : nil 
+      @hold.delete(token.to_sym) unless @hold[token.to_sym]
     end
     def [](token)
       @hold[token.to_sym]

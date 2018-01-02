@@ -58,7 +58,7 @@ module Akupara
       search = place
       return [].tap{|c|
         enum.each{|m|
-          search = search.send(m)
+          search = search&.send(m)
           break if block_given? && block.call(search)
           break unless search
           c << search
