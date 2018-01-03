@@ -45,8 +45,8 @@ module Akupara
     def route(start,goal,dir)
       @movables.map{|moves|
         way = apply_moves(moves,start,dir)
-        way.include?(goal) ? way.take_while{|p| p != goal} : []
-      }.reject(&:empty?)
+        way&.include?(goal) ? way.take_while{|p| p != goal} : []
+      }.reject(&:empty?).flatten
     end
     def list_movables(start,dir,&block)
       block = ->(*_){false} unless block_given?
@@ -81,12 +81,7 @@ module Akupara
       }
     end
     def list_stayables(start,dir)
-      flag = false
-      list_movables(start,dir){|p| 
-        buf = flag
-        flag = !!p.placing
-        buf || p.placing && p.placing&.ally == start.placing&.ally
-      }
+      list_reachables(start,dir).reject{|p| p.placing && p.placing.ally == start.placing.ally}
     end
   end
- end
+end

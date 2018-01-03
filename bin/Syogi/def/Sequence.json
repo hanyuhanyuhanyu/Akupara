@@ -1,5 +1,5 @@
 {
   "init":["init","set_player","set_token"]
-  ,"iterate":["show","require_input","move","reverse?","checkmated?"]
+  ,"iterate":["show","require_input","move","reverse?","checkmated?","change_pl"]
   ,"close":["praise_winner"]
 }
